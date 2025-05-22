@@ -1,0 +1,19 @@
+hosts:
+  - 192.168.0.1
+  - 192.168.0.2
+open_ports_opts:
+  skip_host_discovery: true
+  dns_resolution: false
+  transport_protocol: tcp
+  max_retries: 3
+  min_rate: 50
+  max_rate: 300
+  ports:
+    - "80"
+    - "443"
+service_opts:
+  aggressive_scan: true
+  default_scripts: true
+  os_detection: true
+  traceroute: false
+timeout: 1800

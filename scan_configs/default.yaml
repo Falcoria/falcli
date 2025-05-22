@@ -1,0 +1,16 @@
+open_ports_opts:
+  skip_host_discovery: true  # -Pn
+  dns_resolution: false      # -n
+  transport_protocol: tcp
+  max_retries: 1
+  min_rate: 18000
+  ports:
+    - "1-65535"
+
+service_opts:
+  aggressive_scan: false      # -A
+  default_scripts: false      # -sC
+  os_detection: false        # -O
+  traceroute: false          # --traceroute
+
+timeout: 1800  # 30 minutes

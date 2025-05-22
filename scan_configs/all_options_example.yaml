@@ -1,0 +1,41 @@
+hosts:
+  - scanme.nmap.org
+
+open_ports_opts:
+  skip_host_discovery: true       # -Pn
+  dns_resolution: false           # -n (False), -R (True)
+  transport_protocol: tcp         # TCP or UDP
+  max_retries: 3                  # --max-retries
+  min_parallelism: 10             # --min-parallelism
+  max_parallelism: 50             # --max-parallelism
+  min_rtt_timeout_ms: 100         # --min-rtt-timeout
+  max_rtt_timeout_ms: 3000        # --max-rtt-timeout
+  initial_rtt_timeout_ms: 500     # --initial-rtt-timeout
+  min_rate: 50                    # --min-rate
+  max_rate: 300                   # --max-rate
+  top_ports: 100                  # --top-ports
+  ports:
+    - "80"
+    - "443"
+    - "8080"
+    - "1000-2000"
+
+service_opts:
+  skip_host_discovery: true       # -Pn
+  dns_resolution: false           # -n (False), -R (True)
+  transport_protocol: tcp         # TCP or UDP
+  max_retries: 3                  # --max-retries
+  min_parallelism: 10             # --min-parallelism
+  max_parallelism: 50             # --max-parallelism
+  min_rtt_timeout_ms: 100         # --min-rtt-timeout
+  max_rtt_timeout_ms: 3000        # --max-rtt-timeout
+  initial_rtt_timeout_ms: 500     # --initial-rtt-timeout
+  min_rate: 50                    # --min-rate
+  max_rate: 300                   # --max-rate
+
+  aggressive_scan: true           # -A
+  default_scripts: true           # -sC
+  os_detection: true              # -O
+  traceroute: false               # --traceroute
+
+timeout: 1800                     # Timeout in seconds (30 mins)

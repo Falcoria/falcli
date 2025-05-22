@@ -1,0 +1,33 @@
+# Ignore all .env files in current and all subdirectories
+**/.env*
+.env*
+
+# Ignore virtual environment folder named .venv in any directory
+**/.venv/
+.venv/
+**/venv/
+venv/
+
+# Ignore Python cache files and folders
+__pycache__/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Optional: ignore VSCode settings and common editor files (if you use VSCode or similar)
+.vscode/
+
+
+# 
+# Ignore everything in data folder
+./data/*
+
+# Except memory.json
+!./data/memory.json
+!./data/user_config.yaml
+
+
+# hosts
+hosts.txt
+hosts
