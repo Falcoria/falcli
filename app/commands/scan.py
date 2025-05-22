@@ -96,23 +96,47 @@ def start_scan(
         Path,
         typer.Option("-c", "--config", help="Path to scan configuration YAML file", show_default=True)
     ] = Path("scan_configs/default.yaml"),
+
     targets_file: Optional[Path] = typer.Option(
         None,
         help="Path to file with target hosts (overrides hosts from config)"
     ),
+
+    hosts: Optional[str] = typer.Option(
+        None,
+        help="Comma-separated list of hosts to scan (overrides all other sources)"
+    ),
+
+    from_config: bool = typer.Option(
+        False,
+        help="Explicitly use hosts from the YAML config (required if not using --hosts or --targets-file)"
+    ),
+
     project_id: Optional[str] = typer.Option(
         None,
         help="UUID of the project to start the scan on (default: last used project)"
     )
 ):
-    """Start a scan using a YAML config and optional target file."""
+    """Start a scan using a YAML config and optional target file or host list."""
+
     scan_request = load_scan_yaml(config_path)
 
-    if targets_file:
+    # Priority: --hosts > --targets-file > --from-config
+    if hosts:
+        scan_request.hosts = [h.strip() for h in hosts.split(",") if h.strip()]
+    elif targets_file:
         scan_request.hosts = load_targets_from_file(targets_file)
+    elif from_config:
         if not scan_request.hosts:
             printer.error(errors.Scan.NO_TARGETS_FOUND)
             raise typer.Exit(1)
+    else:
+        printer.error(errors.Scan.NO_HOSTS_PROVIDED)
+        raise typer.Exit(1)
+
+    if not scan_request.hosts:
+        printer.error(errors.Scan.NO_TARGETS_FOUND)
+        raise typer.Exit(1)
 
     project_id = project_id or get_project_id()
 
@@ -173,7 +197,6 @@ def get_scan_status(
             printer.error(errors.Scan.STATUS_FAILED.format(project=project_id))
 
     print()
-
 
 
 @scan_app.command("preview")
