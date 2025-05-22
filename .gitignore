@@ -22,12 +22,3 @@ __pycache__/
 # 
 # Ignore everything in data folder
 ./data/*
-
-# Except memory.json
-!./data/memory.json
-!./data/user_config.yaml
-
-
-# hosts
-hosts.txt
-hosts
