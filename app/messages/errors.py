@@ -46,6 +46,7 @@ class Scan:
     START_FAILED = "Failed to start scan for project {project}"
     STOP_FAILED = "Failed to stop scan for project {project}"
     STATUS_FAILED = "Failed to get scan status for project {project}"
+    NO_HOSTS_PROVIDED = "You must provide targets using --hosts, --targets-file, or explicitly use --from-config."
 
 
 class Worker:
