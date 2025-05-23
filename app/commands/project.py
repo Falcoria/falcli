@@ -117,7 +117,11 @@ def delete_project(project_id: str):
         response = scanledger.delete_project(project_id)
 
         if response.status_code == 204:
-            memory.delete_project_by_id(project_id)
+            try:
+                memory.delete_project_by_id(project_id)
+            except Exception as e:
+                # TODO: Handle memory deletion error
+                pass
             printer.success(info.Project.DELETED.format(project_id=project_id))
         else:
             printer.error(errors.HTTP.ERROR.format(status=response.status_code, message=response.text))

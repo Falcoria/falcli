@@ -7,7 +7,7 @@ from app.commands.config import config_app
 from app.commands.memory import memory_app
 from app.commands.scan import scan_app
 from app.commands.workers import workers_app
-
+from app.commands.fast_scan import fast_scan
 
 def version_callback(value: bool):
     if value:
@@ -37,3 +37,4 @@ app.add_typer(config_app, name="config", help="Configure CLI settings and backen
 app.add_typer(memory_app, name="memory", help="View and modify stored memory (e.g., last used project).")
 app.add_typer(scan_app, name="scan", help="Start, stop, and preview Nmap scans.")
 app.add_typer(workers_app, name="workers", help="Manage worker nodes and their IPs.")
+app.command("fast-scan", help="Start a quick scan, track it, and download report — reusing project and logic.")(fast_scan)

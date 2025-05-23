@@ -1,13 +1,15 @@
 import time
 from pathlib import Path
 from typing import Optional, Annotated
+from itertools import cycle
 
 import yaml
 import typer
 from rich.progress import Progress
+from rich.live import Live
+from rich.text import Text
 from pydantic import ValidationError
 
-from app.config import config
 from app.memory import memory
 from app.connectors.tasker_connector import tasker
 from app.utils import printer
@@ -70,21 +72,45 @@ def get_project_id() -> str:
 
 
 def display_scan_progress(project_id: str, refresh_time: int):
-    with Progress() as progress:
-        task = progress.add_task(f"Scan status for project {project_id}", total=100)
+    try:
+        initial = tasker.get_scan_status(project_id).get("active_or_queued", 0)
+    except RuntimeError as e:
+        printer.error(str(e))
+        raise typer.Exit(1)
 
-        while not progress.finished:
-            try:
-                response = tasker.get_scan_status(project_id)
-            except RuntimeError as e:
-                printer.error(str(e))
-                raise typer.Exit(1)
+    if initial == 0:
+        printer.plain("No active or queued scans found.")
+        raise typer.Exit(0)
 
-            active_or_queued = response.get("active_or_queued", 0)
-            progress_percentage = 100 if active_or_queued == 0 else (1 - active_or_queued / 100) * 100
-            progress.update(task, advance=progress_percentage - progress.tasks[task].completed)
+    total = initial or 1
+    current = initial
+    spinner = cycle(["[/]", "[-]", "[\\]", "[|]"])
+    last_update = time.time()
+    start_time = time.time()
 
-            time.sleep(refresh_time)
+    with Live(refresh_per_second=10) as live:
+        while current > 0:
+            now = time.time()
+
+            if now - last_update >= refresh_time:
+                try:
+                    response = tasker.get_scan_status(project_id)
+                    current = response.get("active_or_queued", 0)
+
+                    if current == 0:
+                        break
+                except RuntimeError as e:
+                    printer.error(str(e))
+                    raise typer.Exit(1)
+                last_update = now
+
+            spin = next(spinner)
+            elapsed = int(now - start_time)
+            live.update(Text(f"{spin} Scanning: {current}/{total} remaining | elapsed: {elapsed}s"))
+            time.sleep(0.17)
+
+    printer.plain(f"Total scan time: {int(time.time() - start_time)} seconds")
+
 
 # ─────────────────────────────────────────────────────────────
 # CLI Commands
@@ -115,13 +141,19 @@ def start_scan(
     project_id: Optional[str] = typer.Option(
         None,
         help="UUID of the project to start the scan on (default: last used project)"
+    ),
+
+    mode: Optional[ImportMode] = typer.Option(
+        None,
+        help="Import mode: insert, replace, update, or append"
     )
+
 ):
     """Start a scan using a YAML config and optional target file or host list."""
 
     scan_request = load_scan_yaml(config_path)
 
-    # Priority: --hosts > --targets-file > --from-config
+    # Target resolution
     if hosts:
         scan_request.hosts = [h.strip() for h in hosts.split(",") if h.strip()]
     elif targets_file:
@@ -138,6 +170,10 @@ def start_scan(
         printer.error(errors.Scan.NO_TARGETS_FOUND)
         raise typer.Exit(1)
 
+    # Attach import mode if provided
+    if mode:
+        scan_request.mode = mode
+
     project_id = project_id or get_project_id()
 
     try:
@@ -151,7 +187,6 @@ def start_scan(
     else:
         printer.error(errors.Scan.START_FAILED.format(project=project_id))
     print()
-
 
 
 @scan_app.command("stop")
