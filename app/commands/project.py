@@ -112,6 +112,7 @@ def get_project(
 
 @project_app.command("delete")
 def delete_project(project_id: str):
+    """Delete a project by ID."""
     try:
         response = scanledger.delete_project(project_id)
 
