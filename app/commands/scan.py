@@ -13,7 +13,7 @@ from app.connectors.tasker_connector import tasker
 from app.utils import printer
 from app.messages import info, errors
 
-from app.schemas import RunNmapRequest, OpenPortsOpts, ServiceOpts
+from app.schemas import RunNmapRequest, OpenPortsOpts, ServiceOpts, ImportMode
 
 scan_app = typer.Typer(no_args_is_help=True)
 
@@ -151,6 +151,7 @@ def start_scan(
     else:
         printer.error(errors.Scan.START_FAILED.format(project=project_id))
     print()
+
 
 
 @scan_app.command("stop")

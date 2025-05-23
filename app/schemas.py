@@ -208,7 +208,9 @@ class RunNmapRequest(BaseModel):
     open_ports_opts: OpenPortsOpts = OpenPortsOpts()
     service_opts: ServiceOpts = ServiceOpts()
     timeout: int = Field(default=1200, ge=1, le=60*60*24, description="Timeout in seconds for the scan")
-
+    include_services: bool = Field(default=True, description="Include service discovery in the scan")
+    mode: ImportMode = Field(default=ImportMode.INSERT, description="Import mode for the scan results")
+        
     @field_validator('hosts', mode='before')
     def validate_hosts(cls, v, values):
         # If hosts not provided but hosts_file is, will be resolved later in CLI.

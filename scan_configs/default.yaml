@@ -3,14 +3,16 @@ open_ports_opts:
   dns_resolution: false      # -n
   transport_protocol: tcp
   max_retries: 1
-  min_rate: 18000
+  min_rate: 5000
   ports:
     - "1-65535"
 
 service_opts:
-  aggressive_scan: false      # -A
-  default_scripts: false      # -sC
-  os_detection: false        # -O
-  traceroute: false          # --traceroute
+  aggressive_scan: false    # -A
+  default_scripts: false    # -sC
+  os_detection: false       # -O
+  traceroute: false         # --traceroute
 
-timeout: 1800  # 30 minutes
+timeout: 1800               # 30 minutes
+mode: insert
+include_services: true      # run -sV against discovered open ports?
