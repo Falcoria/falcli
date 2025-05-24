@@ -52,7 +52,7 @@ def create_project(name: str):
 
     project = Project.model_validate(result)
 
-    printer.success(info.Project.CREATED.format(name=project.project_name))
+    printer.success(info.Project.CREATED.format(name=project.project_name, id=project.id))
     printer.key_value_table(project)
 
     new_project_id = project.id

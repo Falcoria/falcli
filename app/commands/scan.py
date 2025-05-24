@@ -71,7 +71,7 @@ def get_project_id() -> str:
     return project_id
 
 
-def display_scan_progress(project_id: str, refresh_time: int):
+def display_scan_progress(project_id: str, refresh_time: int) -> int:
     try:
         initial = tasker.get_scan_status(project_id).get("active_or_queued", 0)
     except RuntimeError as e:
@@ -109,8 +109,9 @@ def display_scan_progress(project_id: str, refresh_time: int):
             live.update(Text(f"{spin} Scanning: {current}/{total} remaining | elapsed: {elapsed}s"))
             time.sleep(0.17)
 
-    printer.plain(f"Total scan time: {int(time.time() - start_time)} seconds")
-
+    elapsed = int(time.time() - start_time)
+    printer.plain(f"Total scan time: {elapsed} seconds")
+    return elapsed
 
 # ─────────────────────────────────────────────────────────────
 # CLI Commands

@@ -4,7 +4,7 @@ class HTTP:
     SUCCESS = "Request completed successfully."
 
 class Project:
-    CREATED = "Project '{name}' created successfully."
+    CREATED = "Project '{name}' created successfully ({id})."
     DELETED = "Project '{project_id}' deleted."
     FETCHED = "Retrieved project '{name}'."
     CREATED_SIMPLE = "Project created successfully."

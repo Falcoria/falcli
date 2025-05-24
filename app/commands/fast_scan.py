@@ -16,6 +16,8 @@ from app.commands.scan import (
     display_scan_progress,
 )
 from app.commands.project import delete_project
+from app.commands.ips import get_ip
+
 
 
 def generate_random_project_name() -> str:
@@ -32,17 +34,8 @@ def fast_scan(
     format: str = typer.Option("xml", help="Report format (e.g., xml)"),
     delete: bool = typer.Option(False, "--delete", help="Delete the project after report is downloaded"),
 ):
-    """Start a quick scan, track it, and download report — reusing project and logic."""
-    name = generate_random_project_name()
-    try:
-        project = scanledger.create_project(project_name=name)
-    except RuntimeError as e:
-        printer.error(str(e))
-        raise typer.Exit(code=1)
-    memory.save_project(name, project["id"])
-    printer.success(info.Project.CREATED.format(name=name, id=project["id"]))
+    """Start a quick scan, track it, download report, and show IP table."""
 
-    # Reuse scan loading logic
     scan_request = load_scan_yaml(config_path)
 
     if hosts:
@@ -64,6 +57,15 @@ def fast_scan(
     if mode:
         scan_request.mode = mode
 
+    name = generate_random_project_name()
+    try:
+        project = scanledger.create_project(project_name=name)
+    except RuntimeError as e:
+        printer.error(str(e))
+        raise typer.Exit(code=1)
+
+    printer.success(info.Project.CREATED.format(name=name, id=project["id"]))
+
     try:
         response = tasker.start_scan_nmap(project["id"], scan_request.model_dump(exclude_unset=True))
     except RuntimeError as e:
@@ -76,10 +78,9 @@ def fast_scan(
         printer.error(errors.Scan.START_FAILED.format(project=project["id"]))
         raise typer.Exit(1)
 
-    # Reuse interactive tracker
-    display_scan_progress(project["id"], refresh_time)
+    elapsed = display_scan_progress(project["id"], refresh_time)
 
-    # Download scan report
+    # Download report
     try:
         data = scanledger.download_ips(
             project["id"],
@@ -98,12 +99,18 @@ def fast_scan(
 
     config.report_dir.mkdir(parents=True, exist_ok=True)
     output_path = config.report_dir / f"{project['id']}_ips.{format}"
-
     with open(output_path, "wb") as f:
         f.write(data)
 
     printer.success(info.IPs.DOWNLOADED.format(project=project["id"]))
     printer.plain(f"Saved to: {output_path}")
+
+    # Reuse get_ip to print the IP table
+    print()
+    printer.header("Scanned IPs:")
+    get_ip(ip=None, project_id=project["id"])
+
+    printer.plain(f"Total scan time: {elapsed} seconds")
 
     if delete:
         try:
@@ -111,4 +118,5 @@ def fast_scan(
         except RuntimeError as e:
             printer.error(str(e))
             raise typer.Exit(1)
+
     print()
