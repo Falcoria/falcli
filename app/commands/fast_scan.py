@@ -16,7 +16,7 @@ from app.commands.scan import (
     display_scan_progress,
 )
 from app.commands.project import delete_project
-from app.commands.ips import get_ip
+from app.commands.ips import get_ip, list_ips
 
 
 
@@ -30,7 +30,7 @@ def fast_scan(
     hosts: Optional[str] = typer.Option(None, help="Comma-separated list of hosts to scan (overrides all other sources)"),
     from_config: bool = typer.Option(False, help="Use hosts from YAML config (required if not using --hosts or --targets-file)"),
     mode: Optional[ImportMode] = typer.Option(None, help="Import mode: insert, replace, update, or append"),
-    refresh_time: int = typer.Option(5, help="Refresh interval in seconds"),
+    refresh_time: int = typer.Option(1, help="Refresh interval in seconds"),
     format: str = typer.Option("xml", help="Report format (e.g., xml)"),
     delete: bool = typer.Option(False, "--delete", help="Delete the project after report is downloaded"),
 ):
@@ -80,6 +80,17 @@ def fast_scan(
 
     elapsed = display_scan_progress(project["id"], refresh_time)
 
+    # Reuse get_ip to print the IP table
+    print()
+    printer.header("Scanned IPs:")
+    get_ip(ip=None, project_id=project["id"])
+    
+
+    printer.header("Summary:")
+    list_ips(project_id=project["id"], skip=None, limit=None, has_ports=True)
+
+    printer.plain(f"Total scan time: {elapsed} seconds")
+    print()
     # Download report
     try:
         data = scanledger.download_ips(
@@ -104,13 +115,6 @@ def fast_scan(
 
     printer.success(info.IPs.DOWNLOADED.format(project=project["id"]))
     printer.plain(f"Saved to: {output_path}")
-
-    # Reuse get_ip to print the IP table
-    print()
-    printer.header("Scanned IPs:")
-    get_ip(ip=None, project_id=project["id"])
-
-    printer.plain(f"Total scan time: {elapsed} seconds")
 
     if delete:
         try:
