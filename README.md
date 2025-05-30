@@ -61,42 +61,6 @@ python falcli.py <command> [options]
 
 ## ⚡ Quick Start
 
-Run your first scan with a single command using a file of target hosts:
-
-```bash
-python3 falcli.py fast-scan --targets-file hosts.txt
-```
-
-**Example output:**
-
-```
-[+] Project 'autoproj-bf470a30' created successfully (d9173423-5e02-47ee-922b-e88bc6223d27).
-[+] Scan started successfully for project d9173423-5e02-47ee-922b-e88bc6223d27
-[\] Scanning: 1/4 remaining | elapsed: 105s
-Total scan time: 105 seconds
-
-Scanned IPs:
-IP: 128.199.62.51
-Status   : up
-OS       : -
-Hostnames: -
-
-PORT   PROTO  STATE  SERVICE  BANNER                                                                                                
-22     tcp    open   ssh      product: OpenSSH version: 8.9p1 Ubuntu 3ubuntu0.13 extrainfo: Ubuntu Linux; protocol 2.0 ostype: Linux
-33060  tcp    open   mysql    product: MySQL version: 8.4.5                                                                         
-                                                                                                                     
-...
-
-Total scan time: 105 seconds
-
-[+] Downloaded IPs report for project 'd9173423-5e02-47ee-922b-e88bc6223d27'.
-Saved to: scan_reports/d9173423-5e02-47ee-922b-e88bc6223d27_ips.xml
-```
-
----
-
-## ⚡ Quick Start
-
 ### 🔹 Fast Scan (One-liner)
 
 Run your first scan in one command using a file of target hosts:
