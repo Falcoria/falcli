@@ -83,7 +83,7 @@ def fast_scan(
     # Reuse get_ip to print the IP table
     print()
     printer.header("Scanned IPs:")
-    get_ip(ip=None, project_id=project["id"])
+    get_ip(ip=None, project_id=project["id"], has_ports=True)
     
 
     printer.header("Summary:")
