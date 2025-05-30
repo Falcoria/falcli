@@ -191,7 +191,8 @@ def delete_ips(
 @ips_app.command("get")
 def get_ip(
     ip: str = typer.Argument(None, help="IP address to get. If omitted, lists all IPs."),
-    project_id: str = typer.Option(None, help="Project ID (default: last used)")
+    project_id: str = typer.Option(None, help="Project ID (default: last used)"),
+    has_ports: bool = typer.Option(True, help="Only IPs with ports")
 ):
     """
     Get a specific IP or list all IPs from a project.
@@ -217,7 +218,7 @@ def get_ip(
         return
 
     try:
-        raw_ips = scanledger.get_ips(project_id)
+        raw_ips = scanledger.get_ips(project_id, skip=None, limit=None, has_ports=has_ports)
     except RuntimeError as e:
         printer.error(str(e))
         raise typer.Exit(1)
