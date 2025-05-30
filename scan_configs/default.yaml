@@ -1,9 +1,9 @@
 open_ports_opts:
   skip_host_discovery: true  # -Pn
   dns_resolution: false      # -n
-  transport_protocol: tcp
-  max_retries: 1
-  min_rate: 5000
+  transport_protocol: tcp   # tcp/udp
+  max_retries: 1            # --max-retries
+  min_rate: 3000            # --min-rate
   ports:
     - "1-65535"
 
@@ -14,5 +14,5 @@ service_opts:
   traceroute: false         # --traceroute
 
 timeout: 1800               # 30 minutes
-mode: insert
+mode: insert                # https://falcoria.github.io/falcoria-docs/import-modes/
 include_services: true      # run -sV against discovered open ports?
