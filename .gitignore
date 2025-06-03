@@ -22,3 +22,5 @@ __pycache__/
 # 
 # Ignore everything in data folder
 ./data/*
+
+./scan_reports/*
