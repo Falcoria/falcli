@@ -1,6 +1,7 @@
 import typer
 from app.memory import memory
 from app.utils import printer
+from app.connectors.scanledger_connector import scanledger
 
 memory_app = typer.Typer(no_args_is_help=True)
 
@@ -36,10 +37,20 @@ def list_memory():
 def set_default(project_id: str):
     """Set the last used project by ID."""
     if not memory.project_id_exists(project_id):
-        printer.error(f"Project ID '{project_id}' not found in memory.")
-        raise typer.Exit(1)
+        # Try fetching the project from the server
+        try:
+            project = scanledger.get_project(project_id)
+        except RuntimeError:
+            printer.error(f"Project ID '{project_id}' not found in memory or server.")
+            raise typer.Exit(1)
 
-    memory.set_last_project(project_id)
+        # Fallback name for saving if none exists
+        project_name = project.get("name") or f"imported-{project_id[:6]}"
+        memory.save_project(project_name, project_id)
+
+    else:
+        memory.set_last_project(project_id)
+
     printer.success(f"Set last used project to '{project_id}' as the default.")
     print()
 
