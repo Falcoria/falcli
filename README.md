@@ -37,6 +37,26 @@ You're now ready to run the CLI using:
 python falcli.py --help
 ```
 
+## ⚙️ Configuration
+
+Before running scans or importing data, you need to configure your local settings.
+
+Edit the file:
+
+```bash
+./data/user_config.yaml
+```
+
+Set the following values:
+
+```yaml
+backend_base_url: <scanledger_url>
+tasker_base_url: <tasker_url>      # Optional if you don't use scan functionality
+token: <your_access_token>
+```
+
+This configuration allows the CLI to communicate with the Falcoria backend and (optionally) the Tasker API.
+
 ---
 
 ## 🧪 Usage
