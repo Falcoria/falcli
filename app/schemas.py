@@ -3,7 +3,7 @@ from uuid import UUID
 
 from typing import Optional, List, Annotated
 
-from pydantic import BaseModel, Field, constr, field_validator
+from pydantic import BaseModel, Field, constr, field_validator, PrivateAttr
 
 
 
@@ -95,14 +95,14 @@ class OpenPortsOpts(BaseModel):
     dns_resolution: Optional[bool] = Field(default=None, description="-n (False), -R (True)")
     transport_protocol: TransportProtocol = Field(default=TransportProtocol.tcp, description="TCP or UDP")
     max_retries: Optional[int] = Field(default=None, ge=0, le=20, description="--max-retries")
-    min_parallelism: Optional[int] = Field(default=None, ge=1, le=700, description="--min-parallelism")
-    max_parallelism: Optional[int] = Field(default=None, ge=1, le=700, description="--max-parallelism")
+    #min_parallelism: Optional[int] = Field(default=None, ge=1, le=700, description="--min-parallelism")
+    #max_parallelism: Optional[int] = Field(default=None, ge=1, le=700, description="--max-parallelism")
     min_rtt_timeout_ms: Optional[int] = Field(default=None, ge=1, le=60000, description="--min-rtt-timeout")
     max_rtt_timeout_ms: Optional[int] = Field(default=None, ge=1, le=60000, description="--max-rtt-timeout")
     initial_rtt_timeout_ms: Optional[int] = Field(default=None, ge=1, le=60000, description="--initial-rtt-timeout")
     min_rate: Optional[int] = Field(default=None, ge=1, le=30000, description="--min-rate")
     max_rate: Optional[int] = Field(default=None, ge=1, le=30000, description="--max-rate")
-    top_ports: Optional[int] = Field(default=None, ge=1, le=5000, description="Top N ports to scan")
+    #top_ports: Optional[int] = Field(default=None, ge=1, le=5000, description="Top N ports to scan")
     ports: Optional[List[str]] = Field(
         default=None,
         description="List of ports or port ranges (e.g., '22', '80', '1000-2000')"
@@ -129,11 +129,11 @@ class OpenPortsOpts(BaseModel):
         #if self.host_timeout_ms is not None:
         #    args.append(f"--host-timeout {self.host_timeout_ms}ms")
 
-        if self.min_parallelism is not None:
-            args.append(f"--min-parallelism {self.min_parallelism}")
+        #if self.min_parallelism is not None:
+        #    args.append(f"--min-parallelism {self.min_parallelism}")
 
-        if self.max_parallelism is not None:
-            args.append(f"--max-parallelism {self.max_parallelism}")
+        #if self.max_parallelism is not None:
+        #    args.append(f"--max-parallelism {self.max_parallelism}")
 
         if self.min_rtt_timeout_ms is not None:
             args.append(f"--min-rtt-timeout {self.min_rtt_timeout_ms}ms")
@@ -150,8 +150,8 @@ class OpenPortsOpts(BaseModel):
         if self.max_rate is not None:
             args.append(f"--max-rate {self.max_rate}")
         
-        if self.top_ports is not None:
-            args.append(f"--top-ports {self.top_ports}")
+        #if self.top_ports is not None:
+        #    args.append(f"--top-ports {self.top_ports}")
         
         if self.ports:
             args.append(f"-p {','.join(self.ports)}")
@@ -161,26 +161,27 @@ class OpenPortsOpts(BaseModel):
 
 class ServiceOpts(OpenPortsOpts):
     ports: None = Field(default=None, exclude=True)
-    top_ports: None = Field(default=None, exclude=True)
+    #top_ports: None = Field(default=None, exclude=True)
 
     aggressive_scan: bool = Field(default=False, description="Enable aggressive scan mode (-A)")
     default_scripts: bool = Field(default=False, description="Use default Nmap scripts (-sC)")
     os_detection: bool = Field(default=False, description="Enable OS detection (-O)")
     traceroute: bool = Field(default=False, description="Trace hop path to each host (--traceroute)")
+    _force_service_version: bool = PrivateAttr(default=True)
 
     def to_nmap_args(self) -> List[str]:
         args = super().to_nmap_args()
 
         if self.aggressive_scan:
             args.append("-A")
-        #if self.service_version:
-        #    args.append("-sV")
         if self.default_scripts:
             args.append("-sC")
         if self.os_detection:
             args.append("-O")
         if self.traceroute:
             args.append("--traceroute")
+        if self._force_service_version:
+            args.append("-sV")
 
         return args
 

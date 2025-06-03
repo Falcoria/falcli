@@ -83,7 +83,6 @@ def create_project(name: str):
     print()
 
 
-
 @project_app.command("get")
 def get_project(
     project_id: str = typer.Argument(
