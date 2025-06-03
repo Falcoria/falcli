@@ -1,0 +1,18 @@
+open_ports_opts:
+  skip_host_discovery: true
+  dns_resolution: false
+  transport_protocol: tcp
+  max_retries: 1
+  min_rate: 3000
+  ports:
+    - "10001-65535"
+
+service_opts:
+  aggressive_scan: false
+  default_scripts: false
+  os_detection: false
+  traceroute: false
+
+timeout: 1800
+mode: append
+include_services: true

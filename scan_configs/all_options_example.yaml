@@ -3,11 +3,9 @@ hosts:
 
 open_ports_opts:
   skip_host_discovery: true       # -Pn
-  dns_resolution: false           # -n (False), -R (True)
+  dns_resolution: false           # -n (False), -R (True), or None (default)
   transport_protocol: tcp         # TCP or UDP
   max_retries: 3                  # --max-retries
-  min_parallelism: 10             # --min-parallelism
-  max_parallelism: 50             # --max-parallelism
   min_rtt_timeout_ms: 100         # --min-rtt-timeout
   max_rtt_timeout_ms: 3000        # --max-rtt-timeout
   initial_rtt_timeout_ms: 500     # --initial-rtt-timeout
@@ -22,11 +20,9 @@ open_ports_opts:
 
 service_opts:
   skip_host_discovery: true       # -Pn
-  dns_resolution: false           # -n (False), -R (True)
-  transport_protocol: tcp         # TCP or UDP
+  #dns_resolution: false           # Always False for service scan
+  #transport_protocol: tcp        # TCP or UDP. Inherits from open_ports_opts
   max_retries: 3                  # --max-retries
-  min_parallelism: 10             # --min-parallelism
-  max_parallelism: 50             # --max-parallelism
   min_rtt_timeout_ms: 100         # --min-rtt-timeout
   max_rtt_timeout_ms: 3000        # --max-rtt-timeout
   initial_rtt_timeout_ms: 500     # --initial-rtt-timeout

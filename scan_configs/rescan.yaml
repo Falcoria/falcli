@@ -1,0 +1,21 @@
+hosts:
+  - scanme.nmap.org
+
+open_ports_opts:
+  skip_host_discovery: true     # -Pn
+  dns_resolution: false         # -n
+  transport_protocol: tcp
+  max_retries: 1
+  #min_rate: 300
+  ports:
+    - "1-65535"
+
+service_opts:
+  aggressive_scan: true         # -A
+  default_scripts: true         # -sC
+  os_detection: true            # -O
+  traceroute: false             # --traceroute
+
+timeout: 1800
+mode: replace                  # Fully overwrite old results with authoritative new data
+include_services: true         # Run -sV against discovered open ports
