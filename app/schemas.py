@@ -8,8 +8,9 @@ from pydantic import BaseModel, Field, constr, field_validator, PrivateAttr
 
 
 class WorkerIP(BaseModel):
-    hostname: str
     ip: str
+    hostname: str
+    last_updated: str
 
 
 class ProtocolEnum(str, Enum):

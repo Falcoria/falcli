@@ -23,10 +23,24 @@ def list_worker_ips():
         printer.error(errors.Worker.FAILED_TO_GET_IPS)
         raise typer.Exit(code=1)
 
-    # Transform to list of dicts
-    ip_data = [
-        {"hostname": hostname, "ip": ip}
-        for hostname, ip in result["workers"].items()
-    ]
+    # Transform to list of dicts with last_updated formatted
+    ip_data = []
+    for hostname, data in result["workers"].items():
+        ip = data.get("ip", "unknown")
+        last_updated = data.get("last_updated", 0)
+
+        # Convert last_updated to readable time if > 0
+        if last_updated:
+            import time
+            last_updated_str = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(last_updated))
+        else:
+            last_updated_str = "unknown"
+
+        ip_data.append({
+            "hostname": hostname,
+            "ip": ip,
+            "last_updated": last_updated_str
+        })
 
     printer.print_model_table(WorkerIP, ip_data)
+    print()
