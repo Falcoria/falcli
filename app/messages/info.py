@@ -55,3 +55,4 @@ class Scan:
     STOPPED = "Scan stopped for project {project}"
     COMPLETED = "Scan completed for project {project}"
     STATUS = "Scan status for project {project}: {status}"
+    TARGETS_SENT = "Scan targets sent for project {project}."

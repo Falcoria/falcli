@@ -22,6 +22,22 @@ scan_app = typer.Typer(no_args_is_help=True)
 # ─────────────────────────────────────────────────────────────
 # Helpers
 # ─────────────────────────────────────────────────────────────
+def process_scan_response(response: dict[str, bool]):
+    sent_ips = [ip for ip, status in response.items() if status]
+    failed_ips = [ip for ip, status in response.items() if not status]
+
+    if sent_ips:
+        printer.success("Sent to scan:")
+        for ip in sent_ips:
+            print(f"  - {ip}")
+    else:
+        printer.warning("No targets were accepted for scanning.")
+
+    if failed_ips:
+        printer.warning("Rejected targets:")
+        for ip in failed_ips:
+            print(f"  - {ip}")
+
 
 def load_targets_from_file(file_path: Path) -> list[str]:
     if not file_path.exists():
@@ -176,6 +192,9 @@ def start_scan(
         scan_request.mode = mode
 
     project_id = project_id or get_project_id()
+    if not project_id:
+        printer.error("No project_id provided and no last project_id found in memory.")
+        raise typer.Exit(1)
 
     try:
         response = tasker.start_scan_nmap(project_id, scan_request.model_dump(exclude_unset=True))
@@ -184,7 +203,8 @@ def start_scan(
         raise typer.Exit(1)
 
     if response:
-        printer.success(info.Scan.STARTED.format(project=project_id))
+        printer.success(info.Scan.TARGETS_SENT.format(project=project_id))
+        process_scan_response(response)
     else:
         printer.error(errors.Scan.START_FAILED.format(project=project_id))
     print()
@@ -192,9 +212,18 @@ def start_scan(
 
 @scan_app.command("stop")
 def stop_scan(
-    project_id: str = typer.Argument(..., help="UUID of the project to stop the scan for")
+    project_id: Optional[str] = typer.Argument(
+        None,
+        help="UUID of the project to stop the scan for (default: last used project)"
+    )
 ):
     """Stop an ongoing scan for the given project."""
+
+    project_id = project_id or memory.get_last_project_id()
+    if not project_id:
+        printer.error("No project_id provided and no last project_id found in memory.")
+        raise typer.Exit(1)
+    
     try:
         response = tasker.stop_scan_nmap(project_id)
     except RuntimeError as e:
