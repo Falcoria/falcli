@@ -9,7 +9,6 @@ from app.messages import errors
 workers_app = typer.Typer(no_args_is_help=True)
 
 
-
 @workers_app.command("ips")
 def list_worker_ips():
     """List external IP addresses of all active workers."""

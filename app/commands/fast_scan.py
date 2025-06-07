@@ -74,9 +74,26 @@ def fast_scan(
 
     if response:
         printer.success(info.Scan.STARTED.format(project=project["id"]))
+
+        # NEW PART → get workers count and print
+        try:
+            workers_result = tasker.get_workers_ips()
+            if not workers_result or "workers" not in workers_result:
+                worker_count = "unknown"
+            else:
+                worker_count = len(workers_result["workers"])
+        except RuntimeError:
+            worker_count = "unknown"
+
+        # Print message with targets and workers count
+        target_count = len(scan_request.hosts)
+        printer.plain(
+            f"Scan initiated: {target_count} targets, {worker_count} workers active. Processing started."
+        )
     else:
         printer.error(errors.Scan.START_FAILED.format(project=project["id"]))
         raise typer.Exit(1)
+
 
     elapsed = display_scan_progress(project["id"], refresh_time)
 
