@@ -37,6 +37,10 @@ def process_scan_response(response: dict[str, bool]):
         printer.warning("Rejected targets:")
         for ip in failed_ips:
             print(f"  - {ip}")
+        
+        return False
+
+    return True
 
 
 def load_targets_from_file(file_path: Path) -> list[str]:
@@ -220,7 +224,9 @@ def start_scan(
 
 
         # Process response as before
-        process_scan_response(response)
+        result = process_scan_response(response)
+        if not result:
+            raise typer.Exit(1)
         print()
         printer.plain(
             f"Scan initiated: {target_count} targets, {worker_count} workers active. Processing started."
