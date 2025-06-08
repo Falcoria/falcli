@@ -1,22 +1,23 @@
+
 # Falcoria CLI
 
 **Falcoria CLI** is the command-line interface for interacting with the Falcoria system — a high-performance, distributed network scanning platform. It enables users to configure, trigger, and manage scans across infrastructure with power, precision, and flexibility.
 
 ---
 
-## 🚀 Features
+## Features
 
-- ⚡ Initiates scans via Tasker using HTTP APIs
-- 📥 Supports import modes: `insert`, `append`, `replace`, `update`
-- 🛠 Accepts YAML-based scan configurations and flexible target sources
-- 🔀 Enables port sharding and phase-based scan control
-- 📊 Tracks scan progress with live status output
-- 📦 Allows structured result download and CLI-based introspection
-- 🧱 Designed for fast, modular, and scalable integration
+- Initiates scans via Tasker using HTTP APIs
+- Supports import modes: `insert`, `append`, `replace`, `update`
+- Accepts YAML-based scan configurations and flexible target sources
+- Enables port sharding and phase-based scan control
+- Tracks scan progress with live status output
+- Allows structured result download and CLI-based introspection
+- Designed for fast, modular, and scalable integration
 
 ---
 
-## 📦 Installation
+## Installation
 
 ```bash
 # 1. Clone the repository
@@ -37,7 +38,9 @@ You're now ready to run the CLI using:
 python falcli.py --help
 ```
 
-## ⚙️ Configuration
+---
+
+## Configuration
 
 Before running scans or importing data, you need to configure your local settings.
 
@@ -59,7 +62,7 @@ This configuration allows the CLI to communicate with the Falcoria backend and (
 
 ---
 
-## 🧪 Usage
+## Usage
 
 Run scans and manage projects using:
 
@@ -78,15 +81,14 @@ python falcli.py <command> [options]
 
 ---
 
+## Quick Start
 
-## ⚡ Quick Start
-
-### 🔹 Fast Scan (One-liner)
+### Fast Scan (One-liner)
 
 Run your first scan in one command using a file of target hosts:
 
 ```bash
-$ python3 falcli.py fast-scan --targets-file hosts.txt
+python3 falcli.py fast-scan --targets-file hosts.txt
 [+] Project 'autoproj-bf470a30' created successfully (d9173423-5e02-47ee-922b-e88bc6223d27).
 ...
 Saved to: scan_reports/d9173423-5e02-47ee-922b-e88bc6223d27_ips.xml
@@ -94,58 +96,58 @@ Saved to: scan_reports/d9173423-5e02-47ee-922b-e88bc6223d27_ips.xml
 
 ---
 
-### 🔸 Guided Workflow (Step-by-Step Control)
-
-Use this method if you want more control over each stage of scanning.
+### Guided Workflow (Step-by-Step Control)
 
 #### 1. Create a Project
 
 ```bash
-$ python3 falcli.py project create example_project
+python3 falcli.py project create example_project
 [+] Project 'example_project' created successfully (271c56d6-7317-4013-a182-9def30881d21).
-  project_name  : example_project
-  id            : 271c56d6-7317-4013-a182-9def30881d21
-  ...
-A project is already saved in memory: jet, (9bdcfa1a-72cf-4ff4-a581-0fce9b19cb21)
-Do you want to replace it with the new project? [y/N]: y
-Memory updated with the new project.
 ```
 
 #### 2. Start a Scan
 
 ```bash
-$ python3 falcli.py scan start --targets-file hosts.txt
+python3 falcli.py scan start --targets-file hosts.txt
 [+] Scan started successfully for project 271c56d6-7317-4013-a182-9def30881d21
 ```
 
 #### 3. Check Scan Status
 
 ```bash
-$ python3 falcli.py scan status
+python3 falcli.py scan status
 [+] Scan status for project 271c56d6-7317-4013-a182-9def30881d21: 4
 ```
 
 For interactive live status:
 
 ```bash
-$ python3 falcli.py scan status -i
+python3 falcli.py scan status -i
 ```
 
 #### 4. Retrieve Scanned IPs
 
 ```bash
-$ python3 falcli.py project ips get
+python3 falcli.py project ips get
 ```
 
 #### 5. Download XML Report
 
 ```bash
-$ python3 falcli.py project ips download
+python3 falcli.py project ips download
 [+] Downloaded IPs report for project '271c56d6-7317-4013-a182-9def30881d21'.
 Saved to: scan_reports/271c56d6-7317-4013-a182-9def30881d21_ips.xml
 ```
 
-## 📄 License
+---
+
+## Documentation
+
+Full documentation is available at: [https://falcoria.github.io/falcoria-docs/](https://falcoria.github.io/falcoria-docs/)
+
+---
+
+## License
 
 MIT
 
