@@ -19,7 +19,7 @@ class BaseConnector:
         method: str = "GET",
         query_params: dict = None,
         json_body: dict = None,
-        timeout: int = 20,
+        timeout: int = 60,
         files=None
     ):
         """Perform HTTP request. Raise RuntimeError on failure."""
