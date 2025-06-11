@@ -15,28 +15,31 @@ from app.connectors.tasker_connector import tasker
 from app.utils import printer
 from app.messages import info, errors
 
-from app.schemas import RunNmapRequest, OpenPortsOpts, ServiceOpts, ImportMode
+from app.schemas import RunNmapRequest, OpenPortsOpts, ServiceOpts, ImportMode, PreparedTarget
 
 scan_app = typer.Typer(no_args_is_help=True)
 
 # ─────────────────────────────────────────────────────────────
 # Helpers
 # ─────────────────────────────────────────────────────────────
-def process_scan_response(response: dict[str, bool]):
-    sent_ips = [ip for ip, status in response.items() if status]
-    failed_ips = [ip for ip, status in response.items() if not status]
+def process_scan_response(response: dict[str, dict]):
+    sent_ips = [(ip, target.get("hostnames", [])) for ip, target in response.items() if target.get("valid")]
+    failed_ips = [(ip, target.get("reason") or "unknown") for ip, target in response.items() if not target.get("valid")]
 
     if sent_ips:
         printer.success("Sent to scan:")
-        for ip in sent_ips:
-            print(f"  - {ip}")
+        for ip, hostnames in sent_ips:
+            if hostnames:
+                print(f"  - {ip} ({', '.join(hostnames)})")
+            else:
+                print(f"  - {ip}")
     else:
         printer.warning("No targets were accepted for scanning.")
 
     if failed_ips:
         printer.warning("Rejected targets:")
-        for ip in failed_ips:
-            print(f"  - {ip}")
+        for ip, reason in failed_ips:
+            print(f"  - {ip} (reason: {reason})")
         
         return False
 

@@ -6,6 +6,25 @@ from typing import Optional, List, Annotated
 from pydantic import BaseModel, Field, constr, field_validator, PrivateAttr
 
 
+class TargetDeclineReason(str, Enum):
+    ALREADY_IN_SCANLEDGER = "already_in_scanledger"
+    ALREADY_IN_QUEUE = "already_in_queue"
+    UNRESOLVABLE = "unresolvable"
+    PRIVATE_IP = "private_ip"
+    OTHER = "other"
+    FORBIDDEN = "forbidden"
+
+
+class PreparedTarget(BaseModel):
+    hostnames: List[str] = Field(
+        default_factory=list,
+        description="List of hostnames associated with the target"
+    )
+    valid: bool = Field(default=True, description="Indicates if the target is valid")
+    reason: Optional[TargetDeclineReason] = Field(
+        default=None,
+        description="Reason why the target was declined, if not valid"
+    )
 
 class WorkerIP(BaseModel):
     ip: str
