@@ -17,3 +17,6 @@ service_opts:
   os_detection: true
   traceroute: false
 timeout: 1800
+
+mode: insert                # https://falcoria.github.io/falcoria-docs/import-modes/
+include_services: true      # run -sV against discovered open ports?
