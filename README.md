@@ -108,7 +108,10 @@ IP               HOSTNAMES  WORKER        STARTED_AT (UTC)     ELAPSED
 
 ## Use Cases
 
-https://github.com/Falcoria/falcoria-use-cases
+| Use Case                  | Description                                      |
+|---------------------------|--------------------------------------------------|
+| [Import Mode: Insert](https://github.com/Falcoria/falcoria-use-cases/tree/main/import-mode-insert)  | Adds new scan data without affecting existing results. Ideal for incremental discovery. |
+| [Import Mode: Replace](https://github.com/Falcoria/falcoria-use-cases/tree/main/import-mode-replace) | Clears existing results and replaces them entirely with the new scan. Useful for fresh scans. |
 
 ---
 
