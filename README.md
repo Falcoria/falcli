@@ -63,7 +63,7 @@ First project saved.
 ### 2. Start a Scan
 
 ```bash
-./falcli.py scan start --targets-file ../hosts.txt 
+./falcli.py scan start --targets-file hosts.txt 
 [+] Scan initiated for project 26e73c7f-c1e3-4131-8ee5-99a01681af9f.
 
 Scan Settings
@@ -106,7 +106,14 @@ IP               HOSTNAMES  WORKER        STARTED_AT (UTC)     ELAPSED
 
 ---
 
+## Use Cases
+
+https://github.com/Falcoria/falcoria-use-cases
+
+---
+
 ## Documentation
 
 Full documentation is available at: [https://falcoria.github.io/falcoria-docs/](https://falcoria.github.io/falcoria-docs/)
 
+---
