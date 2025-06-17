@@ -1,0 +1,3 @@
+scanledger_base_url: <scanledger_url>
+tasker_base_url: <tasker_url>
+token: <auth_token>

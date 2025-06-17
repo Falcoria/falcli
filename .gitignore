@@ -18,9 +18,12 @@ __pycache__/
 # Optional: ignore VSCode settings and common editor files (if you use VSCode or similar)
 .vscode/
 
+# Ignore all reports, but keep the reports/ folder
+app/data/reports/*
+!app/data/reports/.gitkeep
 
-# 
-# Ignore everything in data folder
-./data/*
+# Ignore all profiles except default.yaml and active_profile.txt
+app/data/profiles/*
+!app/data/profiles/default.yaml
+!app/data/profiles/active_profile.txt
 
-./scan_reports/*

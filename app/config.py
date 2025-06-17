@@ -1,73 +1,59 @@
-import yaml
+# app/config.py
+
 from pathlib import Path
+from pydantic import BaseModel, ValidationError
 
-from pydantic_settings import BaseSettings, SettingsConfigDict, YamlConfigSettingsSource
-from pydantic import BaseModel, Field
+from app.utils.io_utils import save_dict_to_yaml, load_yaml_file
+from app.utils.printer import Printer
+from app.messages.errors import Errors
+from app.core.profile.models import FalcoriaProfile
 
 
-from app.messages import errors
-from app.utils import printer
+BASE_DIR = Path(__file__).parent
+DATA_DIR = BASE_DIR / "data"
+PROFILE_DIR = DATA_DIR / "profiles"
+ACTIVE_PROFILE_FILE = PROFILE_DIR / "active_profile.txt"
 
 
-class UserConfig(BaseModel):
-    backend_base_url: str
+class Config(BaseModel):
+    scanledger_base_url: str
     tasker_base_url: str
     token: str
 
-    def save(self):
-        config_file = Path("data/user_config.yaml")
-        config_file.parent.mkdir(parents=True, exist_ok=True)
-        with config_file.open("w") as f:
-            yaml.safe_dump(self.model_dump(), f)
+    memory_file: Path = DATA_DIR / "memory.json"
+    report_dir: Path = DATA_DIR / "reports"
+    scan_config_dir: Path = DATA_DIR / "scan_configs"
+    profile_dir: Path = PROFILE_DIR
+
+    def save(self, profile_name: str):
+        path = PROFILE_DIR / f"{profile_name}.yaml"
+        save_dict_to_yaml(self.model_dump(), path)
 
 
-class Config(BaseSettings):
-    backend_base_url: str
-    tasker_base_url: str
-    token: str
+def get_active_profile_name() -> str:
+    if not ACTIVE_PROFILE_FILE.exists():
+        ACTIVE_PROFILE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        ACTIVE_PROFILE_FILE.write_text("default")
+    return ACTIVE_PROFILE_FILE.read_text().strip()
 
-    memory_file: Path = Path("data/memory.json")
-    report_dir: Path = Path("scan_reports")
 
-    model_config = SettingsConfigDict(
-        env_prefix="",
-    )
-
-    @classmethod
-    def settings_customise_sources(
-        cls,
-        settings_cls,
-        init_settings,
-        env_settings,
-        dotenv_settings,
-        file_secret_settings,
-    ):
-        return (
-            init_settings,
-            YamlConfigSettingsSource(settings_cls, Path("data/user_config.yaml")),
-            env_settings,
-            dotenv_settings,
-            file_secret_settings,
+def load_config_safe() -> Config | None:
+    try:
+        profile_name = get_active_profile_name()
+        path = PROFILE_DIR / f"{profile_name}.yaml"
+        data = load_yaml_file(path)
+        profile = FalcoriaProfile(**data)
+        return Config(
+            scanledger_base_url=profile.scanledger_base_url,
+            tasker_base_url=profile.tasker_base_url,
+            token=profile.token,
         )
+    except (FileNotFoundError, ValidationError, Exception) as e:
+        Printer.error(
+            Errors.Config.MISSING_VALUES
+            + f"\nCheck profile file: {path}\nDetails: {e}"
+        )
+        return None
 
-    def save(self):
-        import yaml
 
-        config_data = self.model_dump()
-
-        # Convert Paths to strings
-        for key, value in config_data.items():
-            if isinstance(value, Path):
-                config_data[key] = str(value)
-
-        config_file = Path("data/user_config.yaml")
-        config_file.parent.mkdir(parents=True, exist_ok=True)
-
-        with config_file.open("w") as f:
-            yaml.safe_dump(config_data, f)
-
-try:
-    config = Config()
-except Exception:
-    printer.error(errors.Config.MISSING_VALUES)
-    raise SystemExit(1)
+config = load_config_safe()

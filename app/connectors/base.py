@@ -1,5 +1,7 @@
 import requests
+import time
 import urllib3
+from typing import Optional
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -17,69 +19,41 @@ class BaseConnector:
         self,
         endpoint: str,
         method: str = "GET",
-        query_params: dict = None,
-        json_body: dict = None,
+        query_params: Optional[dict] = None,
+        json_body: Optional[dict] = None,
         timeout: int = 60,
-        files=None
-    ):
-        """Perform HTTP request. Raise RuntimeError on failure."""
+        files=None,
+        max_retries: int = 3,
+        retry_delay: float = 2.0
+    ) -> requests.Response:
+        """Perform HTTP request with retries. Raise RuntimeError on failure."""
         url = f"{self.base_url}/{endpoint.lstrip('/')}"
 
-        try:
-            if method in ["GET", "DELETE"]:
-                response = self.session.request(
-                    method=method,
-                    url=url,
-                    params=query_params,
-                    timeout=timeout,
-                    verify=False
-                )
-            elif files is not None:
-                response = self.session.post(
-                    url=url,
-                    files=files,
-                    params=query_params,
-                    timeout=timeout,
-                    verify=False
-                )
-            elif method in ["POST", "PUT"]:
+        for attempt in range(1, max_retries + 1):
+            try:
                 response = self.session.request(
                     method=method,
                     url=url,
                     params=query_params,
                     json=json_body,
+                    files=files,
                     timeout=timeout,
                     verify=False
                 )
-            else:
-                raise ValueError(f"Unsupported HTTP method: {method}")
 
-            response.raise_for_status()
-            return response
+                response.raise_for_status()
+                return response
 
-        except requests.ConnectionError as e:
-            raise RuntimeError(f"Server is unreachable: {e}") from e
+            except (requests.ConnectionError, requests.Timeout) as e:
+                if attempt == max_retries:
+                    raise RuntimeError(f"Request failed after {max_retries} retries: {e}") from e
+                time.sleep(retry_delay)
 
-        except requests.Timeout as e:
-            raise RuntimeError(f"Request timed out: {e}") from e
+            except requests.HTTPError as e:
+                raise RuntimeError(f"HTTP {e.response.status_code}: {e.response.text}") from e
 
-        except requests.HTTPError as e:
-            raise RuntimeError(f"HTTP {e.response.status_code}: {e.response.text}") from e
+            except requests.RequestException as e:
+                raise RuntimeError(f"Request failed: {e}") from e
 
-        except requests.RequestException as e:
-            raise RuntimeError(f"Request failed: {e}") from e
-
-        except Exception as e:
-            raise RuntimeError(f"Unexpected error during request: {e}") from e
-
-    def _handle_response(self, response, expect_json: bool = True, return_content: bool = False):
-        if return_content:
-            return response.content
-
-        if not expect_json:
-            return response.status_code
-
-        try:
-            return response.json()
-        except Exception:
-            return None
+            except Exception as e:
+                raise RuntimeError(f"Unexpected error during request: {e}") from e

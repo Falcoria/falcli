@@ -35,3 +35,5 @@ service_opts:
   traceroute: false               # --traceroute
 
 timeout: 1800                     # Timeout in seconds (30 mins)
+mode: insert                      # https://falcoria.github.io/falcoria-docs/import-modes/
+include_services: true            # run -sV against discovered open ports?

@@ -1,19 +1,6 @@
-
 # Falcoria CLI
 
-**Falcoria CLI** is the command-line interface for interacting with the Falcoria system — a high-performance, distributed network scanning platform. It enables users to configure, trigger, and manage scans across infrastructure with power, precision, and flexibility.
-
----
-
-## Features
-
-- Initiates scans via Tasker using HTTP APIs
-- Supports import modes: `insert`, `append`, `replace`, `update`
-- Accepts YAML-based scan configurations and flexible target sources
-- Enables port sharding and phase-based scan control
-- Tracks scan progress with live status output
-- Allows structured result download and CLI-based introspection
-- Designed for fast, modular, and scalable integration
+**Falcoria CLI** is a unified command-line interface for managing the distributed scanning system — Falcoria. It streamlines every stage of the scanning workflow: from project creation to task dispatch and result retrieval. Built to simplify complex infrastructure scans, `falcli` brings full control to your terminal.
 
 ---
 
@@ -42,15 +29,13 @@ python falcli.py --help
 
 ## Configuration
 
-Before running scans or importing data, you need to configure your local settings.
-
-Edit the file:
+Before using the CLI, set up your connection to Falcoria services by editing:
 
 ```bash
-./data/user_config.yaml
+./app/data/profiles/default.yaml
 ```
 
-Set the following values:
+Fill in the following fields:
 
 ```yaml
 backend_base_url: <scanledger_url>
@@ -58,85 +43,65 @@ tasker_base_url: <tasker_url>      # Optional if you don't use scan functionalit
 token: <your_access_token>
 ```
 
-This configuration allows the CLI to communicate with the Falcoria backend and (optionally) the Tasker API.
+This enables communication with the backend and task dispatch system.
 
 ---
 
-## Usage
+## How to Scan
 
-Run scans and manage projects using:
+### 1. Create a Project
 
 ```bash
-python falcli.py <command> [options]
+./falcli.py project create pentest_project
+[+] Project 'pentest_project' created successfully (26e73c7f-c1e3-4131-8ee5-99a01681af9f).
+  project_name  : pentest_project
+  id            : 26e73c7f-c1e3-4131-8ee5-99a01681af9f
+  users         : admin
+First project saved.
 ```
 
-### Key Commands
-
-- `project`: Create, list, and manage scanning projects and associated target IPs.
-- `scan`: Launch scans, preview Nmap commands, check status, or stop ongoing scans.
-- `import`: Import external scan results using one of the supported import modes (`insert`, `append`, `replace`, `update`).
-- `config`: Set or view CLI settings and backend connection details.
-- `workers`: View active worker nodes and their external IP addresses.
-- `memory`: View or reset internal memory (e.g., last used project ID).
-
----
-
-## Quick Start
-
-### Fast Scan (One-liner)
-
-Run your first scan in one command using a file of target hosts:
+### 2. Start a Scan
 
 ```bash
-python3 falcli.py fast-scan --targets-file hosts.txt
-[+] Project 'autoproj-bf470a30' created successfully (d9173423-5e02-47ee-922b-e88bc6223d27).
-...
-Saved to: scan_reports/d9173423-5e02-47ee-922b-e88bc6223d27_ips.xml
+./falcli.py scan start --targets-file ../hosts.txt 
+[+] Scan initiated for project 26e73c7f-c1e3-4131-8ee5-99a01681af9f.
+
+Scan Settings
+  Import mode      : insert
+  Nmap open ports  : -n --max-retries 1 --min-rate 300 -Pn -p 1-65535
+  Nmap services    : -sV -Pn
+
+Scan Summary
+  Targets provided         : 6
+  Duplicates removed       : 1
+  Skipped (already known)  : 0
+  Rejected                 : 0
+  Accepted and sent        : 5
 ```
 
----
-
-### Guided Workflow (Step-by-Step Control)
-
-#### 1. Create a Project
+### 3. Check Scan Status
 
 ```bash
-python3 falcli.py project create example_project
-[+] Project 'example_project' created successfully (271c56d6-7317-4013-a182-9def30881d21).
+./falcli.py scan status
+[+] Scan status for project 26e73c7f-c1e3-4131-8ee5-99a01681af9f fetched successfully.
+
+Scan Status Summary
+  Tasks total    : 5
+  Tasks running  : 4
+  Tasks queued   : 1
+
+Running Targets:
+IP               HOSTNAMES  WORKER        STARTED_AT (UTC)     ELAPSED
+142.93.156.194              a5ef4e44ca7b  2025-06-17 13:57:46  0:00:11
+147.182.157.118             d2b5c09fe876  2025-06-17 13:57:46  0:00:11
+143.110.223.7               c21da8b747db  2025-06-17 13:57:46  0:00:11
+165.22.231.248              e323a82d28d3  2025-06-17 13:57:46  0:00:11
 ```
 
-#### 2. Start a Scan
+### 4. Get Results
 
 ```bash
-python3 falcli.py scan start --targets-file hosts.txt
-[+] Scan started successfully for project 271c56d6-7317-4013-a182-9def30881d21
-```
-
-#### 3. Check Scan Status
-
-```bash
-python3 falcli.py scan status
-[+] Scan status for project 271c56d6-7317-4013-a182-9def30881d21: 4
-```
-
-For interactive live status:
-
-```bash
-python3 falcli.py scan status -i
-```
-
-#### 4. Retrieve Scanned IPs
-
-```bash
-python3 falcli.py project ips get
-```
-
-#### 5. Download XML Report
-
-```bash
-python3 falcli.py project ips download
-[+] Downloaded IPs report for project '271c56d6-7317-4013-a182-9def30881d21'.
-Saved to: scan_reports/271c56d6-7317-4013-a182-9def30881d21_ips.xml
+./falcli.py project ips get
 ```
 
 ---
@@ -145,12 +110,3 @@ Saved to: scan_reports/271c56d6-7317-4013-a182-9def30881d21_ips.xml
 
 Full documentation is available at: [https://falcoria.github.io/falcoria-docs/](https://falcoria.github.io/falcoria-docs/)
 
----
-
-## License
-
-MIT
-
----
-
-Falcoria is developed for real-world offensive security workflows.
