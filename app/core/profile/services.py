@@ -1,5 +1,3 @@
-# app/core/profile/services.py
-
 from pathlib import Path
 from pydantic import ValidationError
 

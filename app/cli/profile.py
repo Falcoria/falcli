@@ -70,6 +70,13 @@ def delete_profile(name: str):
         ProfileService.load_profile(name)  # ensure profile exists
         ProfileService.delete_profile(name)
         Printer.success(Info.Profile.DELETED.format(name=name))
+
+        # If deleted profile was active, set to 'default'
+        active_profile = ProfileService.get_active_profile_name()
+        if active_profile == name:
+            ProfileService.set_active_profile("default")
+            Printer.success("Active profile reset to 'default'")
+
     except ValueError as e:
         Printer.error(str(e))
 
