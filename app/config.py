@@ -1,5 +1,3 @@
-# app/config.py
-
 from pathlib import Path
 from pydantic import BaseModel, ValidationError
 

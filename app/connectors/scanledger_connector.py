@@ -17,8 +17,8 @@ class ScanledgerConnector(BaseConnector):
         "ip_detail": "projects/{project_id}/ips/{ip_address}",
     }
 
-    def __init__(self, backend_base_url: str, auth_token: str):
-        super().__init__(backend_base_url, auth_token)
+    def __init__(self, scanledger_base_url: str, auth_token: str):
+        super().__init__(scanledger_base_url, auth_token)
 
     def create_project(self, name: str) -> requests.Response:
         return self.make_request(
@@ -118,6 +118,6 @@ class ScanledgerConnector(BaseConnector):
 # Global connector instance
 
 scanledger = ScanledgerConnector(
-    backend_base_url=config.scanledger_base_url,
+    scanledger_base_url=config.scanledger_base_url,
     auth_token=config.token
 )
