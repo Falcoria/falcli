@@ -21,11 +21,10 @@ class IpsService:
         return None
 
     @staticmethod
-    def import_ips(project_id: str, file_path: str, mode: ImportMode) -> list[IP] | None:
+    def import_ips(project_id: str, file_path: str, mode: ImportMode) -> list[str] | None:
         response = scanledger.import_ips(project_id, file_path, mode=mode.value)
         if response.status_code == 200:
-            raw_ips = response.json()
-            return [IP.model_validate(ip) for ip in raw_ips]
+            return response.json()
         return None
 
     @staticmethod

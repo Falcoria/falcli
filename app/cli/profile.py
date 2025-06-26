@@ -8,6 +8,7 @@ from app.utils.printer import Printer
 from app.messages.info import Info
 from app.messages.errors import Errors
 from app.utils.io_utils import load_yaml_file
+from app.core.project.services import ProjectService
 
 
 profile_app = typer.Typer(name="profile", no_args_is_help=True, help="Manage Falcoria profiles")
@@ -33,15 +34,7 @@ def show_profile(name: str = typer.Argument(None, help="Profile name (if not pro
         profile = ProfileService.load_profile(name)
         Printer.header(Info.Profile.PROFILE_HEADER.format(name=name))
 
-        # Build rows dynamically
-        rows = []
-        for field_name, value in profile.model_dump().items():
-            if isinstance(value, list):
-                value = ", ".join(value) if value else "-"
-            elif value is None:
-                value = "-"
-            rows.append((field_name, str(value)))
-
+        rows = ProfileService.format_profile_data(profile)
         Printer.column_table(["Field", "Value"], rows)
         print()
 
@@ -93,26 +86,21 @@ def set_active(name: str):
 
 @profile_app.command("set-active-project", help="Set the default project for the active profile")
 def set_default_project(project_id: str):
-    active_profile_name = ProfileService.get_active_profile_name()
-    if not active_profile_name:
-        Printer.error(Errors.Profile.NO_ACTIVE_PROFILE)
-        raise typer.Exit(1)
-
-    if not ProfileService.project_exists(project_id):
-        Printer.error(Errors.Project.NOT_FOUND.format(project_id=project_id))
-        raise typer.Exit(1)
-
     try:
-        profile = ProfileService.load_profile(active_profile_name)
-        profile.current_project = project_id
-        ProfileService.save_profile(active_profile_name, profile)
+        success = ProjectService.set_default_project(project_id)
+        if not success:
+            Printer.error(Errors.Project.NOT_FOUND.format(project_id=project_id))
+            raise typer.Exit(1)
+
+        active_profile_name = ProfileService.get_active_profile_name()
         Printer.success(Info.Profile.DEFAULT_PROJECT_SET.format(
             project_id=project_id,
             profile_name=active_profile_name
         ))
-    except ValueError as e:
-        Printer.error(str(e))
 
+    except RuntimeError as e:
+        Printer.error(str(e))
+        raise typer.Exit(1)
 
 @profile_app.command("set", help="Set a field in the active profile")
 def set_profile_field(

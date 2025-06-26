@@ -6,6 +6,8 @@ from app.messages.confirmations import CONFIRMATIONS
 from app.core.ips.services import IpsService
 from app.core.common.enums import ImportMode, DownloadReportFormat
 from app.utils.context import get_current_project_id
+from app.core.project.services import ProjectService
+from app.core.profile.services import ProfileService
 
 
 ips_app = typer.Typer(no_args_is_help=True)
@@ -14,10 +16,15 @@ ips_app = typer.Typer(no_args_is_help=True)
 @ips_app.command("list", help="List all IPs in the current project")
 def list_ips(project_id: str = typer.Option(None), skip: int = typer.Option(None), limit: int = typer.Option(None), has_ports: bool = typer.Option(True)):
     project_id = get_current_project_id(project_id)
+    project = ProfileService.get_project_by_id(project_id)
+
     ips = IpsService.list_ips(project_id, skip, limit, has_ports)
     if not ips:
-        Printer.warning(Info.IPs.NO_IPS_FOUND.format(project=project_id))
+        Printer.warning(Info.IPs.NO_IPS_FOUND.format(project_id=project_id, project_name=project.name))
         return
+    
+    Printer.print_active_project(project)
+    print()
     rows = [(ip.ip, len(ip.ports or [])) for ip in ips]
     Printer.column_table(["ip", "port_count"], rows)
     print()
@@ -38,7 +45,9 @@ def create_ips(ip: list[str] = typer.Option(...), project_id: str = typer.Option
 @ips_app.command("import", help="Import IPs from a file into the current project")
 def import_ips(file: str = typer.Option(..., "-f", "--file"), project_id: str = typer.Option(None), mode: ImportMode = typer.Option(ImportMode.INSERT)):
     project_id = get_current_project_id(project_id)
+    project = ProfileService.get_project_by_id(project_id)
     result = IpsService.import_ips(project_id, file, mode)
+    Printer.print_active_project(project)
     if result:
         Printer.plain(Info.IPs.IMPORTED.format(project=project_id, result=f"{len(result)} IP{'s' if len(result) != 1 else ''}"))
     elif result == []:
@@ -58,6 +67,8 @@ def download_ips(
     out: str = typer.Option(None, help="Optional path to save the downloaded report"),
 ):
     project_id = get_current_project_id(project_id)
+    project = ProfileService.get_project_by_id(project_id)
+    Printer.print_active_project(project)
     try:
         data = IpsService.download_ips(project_id, skip, limit, has_ports, format)
     except RuntimeError as e:
@@ -87,6 +98,8 @@ def download_ips(
 @ips_app.command("delete", help="Delete specific IP or all IPs in the current project")
 def delete_ips(ip: str = typer.Argument(None), project_id: str = typer.Option(None)):
     project_id = get_current_project_id(project_id)
+    project = ProfileService.get_project_by_id(project_id)
+    Printer.print_active_project(project)
     if ip:
         success = IpsService.delete_ip(project_id, ip)
         if success:
@@ -110,6 +123,8 @@ def delete_ips(ip: str = typer.Argument(None), project_id: str = typer.Option(No
 @ips_app.command("get", help="Get details of a specific IP in the current project")
 def get_ip(ip: str = typer.Argument(None), project_id: str = typer.Option(None), has_ports: bool = typer.Option(True)):
     project_id = get_current_project_id(project_id)
+    project = ProfileService.get_project_by_id(project_id)
+    Printer.print_active_project(project)
     if ip:
         ip_obj = IpsService.get_ip(project_id, ip)
         if not ip_obj:

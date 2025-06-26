@@ -12,11 +12,13 @@ from app.core.common.enums import ImportMode
 from app.core.profile.services import ProfileService
 from app.utils.io_utils import load_lines_from_file
 from app.config import config
+from app.core.scan.enums import ScanCommands
+
 
 scan_app = typer.Typer(no_args_is_help=True)
 
 
-@scan_app.command("start")
+@scan_app.command(ScanCommands.START.value, help="Start a scan using a YAML config and optional target file or host list.")
 def start_scan_cmd(
     config_path: Annotated[
         Path,
@@ -91,11 +93,18 @@ def start_scan_cmd(
     if mode:
         scan_request.mode = mode
 
-    project_id = project_id or ProfileService.get_saved_project_id()
-    if not project_id:
-        Printer.error(Errors.Project.ID_REQUIRED)
-        raise typer.Exit(1)
+    project = None
+    project_name = None
 
+    if not project_id:
+        project = ProfileService.get_saved_project()
+        if not project:
+            Printer.error(Errors.Project.ID_REQUIRED)
+            raise typer.Exit(1)
+        
+        project_id = project.project_id
+        project_name = project.name
+    
     try:
         response: ScanStartResponse = ScanService.start_scan(
             project_id, scan_request.model_dump(exclude_unset=True)
@@ -104,25 +113,34 @@ def start_scan_cmd(
         Printer.error(str(e))
         raise typer.Exit(1)
 
-    Printer.success(Info.Scan.TARGETS_SENT.format(project=project_id))
-    Printer.scan_start_header(scan_request, project_id)
+    Printer.success(Info.Scan.TARGETS_SENT.format(project_name=project_name, project_id=project_id))
+    Printer.scan_start_header(scan_request, project_id, str(config_path))
     Printer.scan_summary_table(response.summary)
     print()
 
 
 
-@scan_app.command("stop")
+@scan_app.command(ScanCommands.STOP.value, help="Stop an ongoing scan for the given project.")
 def stop_scan(
     project_id: Optional[str] = typer.Argument(
         None, help="UUID of the project to stop the scan for (default: from active profile)"
     )
 ):
     """Stop an ongoing scan for the given project."""
-    project_id = project_id or ProfileService.get_saved_project_id()
+    project = None
+    project_name = None
 
     if not project_id:
-        Printer.error(Errors.Project.ID_REQUIRED)
-        raise typer.Exit(1)
+        project = ProfileService.get_saved_project()
+        if not project:
+            Printer.error(Errors.Project.ID_REQUIRED)
+            raise typer.Exit(1)
+        project_id = project.project_id
+        project_name = project.name
+    else:
+        project = ProfileService.get_project_by_id(project_id)
+        if project:
+            project_name = project.name
 
     try:
         result = ScanService.stop_scan(project_id)
@@ -131,25 +149,41 @@ def stop_scan(
         raise typer.Exit(1)
 
     if result.status == "stopped":
-        Printer.success(Info.Scan.STOP_SUCCESS.format(project_id=project_id))
+        Printer.success(Info.Scan.STOP_SUCCESS.format(
+            project_id=project_id,
+            project_name=project_name or "-"
+        ))
         Printer.plain(Info.Scan.REVOKED_COUNT.format(count=result.revoked))
     else:
-        Printer.warning(Info.Scan.NO_TASKS.format(project=project_id))
+        Printer.warning(Info.Scan.NO_TASKS.format(
+            project_id=project_id,
+            project_name=project_name or "-"
+        ))
 
     print()
 
 
-@scan_app.command("status")
+@scan_app.command(ScanCommands.STATUS.value, help="Check scan task status for the given project.")
 def scan_status_cmd(
     project_id: Optional[str] = typer.Option(
         None, help="UUID of the project to check scan status for (default: current project in profile)"
     )
 ):
     """Check scan task status for the given project."""
-    project_id = project_id or ProfileService.get_saved_project_id()
+    project = None
+    project_name = None
+
     if not project_id:
-        Printer.error(Errors.Project.ID_REQUIRED)
-        raise typer.Exit(1)
+        project = ProfileService.get_saved_project()
+        if not project:
+            Printer.error(Errors.Project.ID_REQUIRED)
+            raise typer.Exit(1)
+        project_id = project.project_id
+        project_name = project.name
+    else:
+        project = ProfileService.get_project_by_id(project_id)
+        if project:
+            project_name = project.name
 
     try:
         status: ProjectTaskSummary = ScanService.get_scan_status(project_id)
@@ -157,6 +191,13 @@ def scan_status_cmd(
         Printer.error(str(e))
         raise typer.Exit(1)
 
-    Printer.success(Info.Scan.STATUS_FETCHED.format(project_id=project_id))
-    Printer.task_summary_table(status)
+    Printer.success(Info.Scan.STATUS_FETCHED.format(
+        project_id=project_id,
+        project_name=project_name or "-"
+    ))
+    if status.active_or_queued == 0:
+        Printer.plain(Info.Scan.NO_TASKS.format(project_name=project_name, project_id=project_id))
+    else:
+        Printer.task_summary_table(status)
     print()
+

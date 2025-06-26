@@ -6,15 +6,17 @@ from app.messages.info import Info
 from app.messages.errors import Errors
 from app.core.project.services import ProjectService
 from app.core.project.models import Project
-from app.core.profile.services import ProfileService
 from app.cli.ips import ips_app
+from app.core.profile.models import FalcoriaProject
+from app.core.project.enums import ProjectCommands
+from app.core.profile.services import ProfileService
 
 
 project_app = typer.Typer(no_args_is_help=True)
 project_app.add_typer(ips_app, name="ips", help="IP management commands")
 
 
-@project_app.command("list")
+@project_app.command(ProjectCommands.LIST.value, help="List all projects.")
 def list_projects():
     """List all projects."""
     try:
@@ -32,7 +34,7 @@ def list_projects():
     print()
 
 
-@project_app.command("create")
+@project_app.command(ProjectCommands.CREATE.value, help="Create a new project.")
 def create_project(name: str):
     """Create a new project."""
     try:
@@ -49,11 +51,14 @@ def create_project(name: str):
     Printer.success(Info.Project.CREATED.format(name=project.project_name, id=project.id))
     Printer.key_value_table(project)
 
-    new_project_id = project.id
+    falcoria_project = FalcoriaProject(
+        name=project.project_name,
+        project_id=project.id
+    )
     saved_project_id = ProjectService.get_saved_project_id()
 
     if not saved_project_id:
-        ProjectService.save_project(new_project_id)
+        ProjectService.save_project(falcoria_project)
         Printer.plain(Info.Project.FIRST_PROJECT_SAVED)
         print()
         return
@@ -66,7 +71,7 @@ def create_project(name: str):
 
     confirm = typer.confirm(Info.Project.CONFIRM_REPLACE, default=False)
     if confirm:
-        ProjectService.save_project(new_project_id)
+        ProjectService.save_project(falcoria_project)
         Printer.plain(Info.Project.MEMORY_UPDATED)
     else:
         Printer.plain(Info.Project.MEMORY_NOT_UPDATED)
@@ -74,7 +79,7 @@ def create_project(name: str):
     print()
 
 
-@project_app.command("get")
+@project_app.command(ProjectCommands.GET.value, help="Get project details by ID.")
 def get_project(
     project_id: str | None = typer.Argument(
         None, help="Project ID (if not provided, will use the saved project in profile)"
@@ -100,7 +105,7 @@ def get_project(
         raise typer.Exit(1)
 
 
-@project_app.command("delete")
+@project_app.command(ProjectCommands.DELETE.value, help="Delete a project by ID.")
 def delete_project(project_id: str):
     """Delete a project by ID."""
     try:
@@ -116,7 +121,7 @@ def delete_project(project_id: str):
         raise typer.Exit(1)
 
 
-@project_app.command("set-active")
+@project_app.command(ProjectCommands.SET_ACTIVE.value, help="Set the default project for the current profile.")
 def set_default_project(project_id: str):
     """Set the default project for the current profile (validated via ScanLedger)."""
     try:

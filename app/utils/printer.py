@@ -7,6 +7,8 @@ from pydantic import BaseModel
 
 from app.core.ips.models import IP
 from app.core.scan.models import ScanStartSummary, ProjectTaskSummary, RunNmapRequest
+from app.utils.io_utils import get_display_path
+from app.core.profile.models import FalcoriaProject
 
 
 class Printer:
@@ -204,8 +206,9 @@ class Printer:
             Printer.plain("  No running targets.")
 
     @staticmethod
-    def scan_start_header(scan_request: RunNmapRequest, project_id: str):
-        Printer.header(f"Scan initiated for project {project_id}\n")
+    def scan_start_header(scan_request: RunNmapRequest, project_id: str, scan_config_path: str):
+        #Printer.header(f"Scan initiated for project {project_id}\n")
+        print()
         Printer.header("Scan Settings")
 
         open_ports_flags = " ".join(scan_request.open_ports_opts.to_nmap_args())
@@ -216,9 +219,15 @@ class Printer:
 
         data = {
             "Import mode"     : scan_request.mode.value,
-            "Nmap open ports" : open_ports_flags,
-            "Nmap services"   : service_flags
+            "Nmap (open ports)" : open_ports_flags,
+            "Nmap (services)"   : service_flags,
+            "Scan config"     : get_display_path(scan_config_path),
         }
 
         Printer.key_value_table(data)
         print()
+    
+    @staticmethod
+    def print_active_project(project: FalcoriaProject):
+        #Printer.plain(f"[Active Project] {project.name} ({project.project_id})")
+        Printer.plain(f"[Active Project]: '{project.name}' ({project.project_id})")

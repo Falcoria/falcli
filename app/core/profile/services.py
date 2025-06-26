@@ -6,6 +6,7 @@ from app.messages.errors import Errors
 from app.utils.io_utils import save_dict_to_yaml, load_yaml_file
 from app.config import PROFILE_DIR
 from app.connectors.scanledger_connector import scanledger
+from app.core.profile.models import FalcoriaProject
 
 
 class ProfileService:
@@ -77,10 +78,16 @@ class ProfileService:
         return missing_fields
     
     @staticmethod
-    def get_saved_project_id() -> str | None:
+    def get_saved_project() -> FalcoriaProject | None:
         active_profile_name = ProfileService.get_active_profile_name()
         profile = ProfileService.load_profile(active_profile_name)
-        return profile.current_project
+        return profile.current_project if profile.current_project else None
+
+    @staticmethod
+    def get_saved_project_id() -> str | None:
+        falcoria_project = ProfileService.get_saved_project()
+        if falcoria_project:
+            return falcoria_project.project_id
     
     @staticmethod
     def project_exists(project_id: str) -> bool:
@@ -91,3 +98,40 @@ class ProfileService:
             return True
         except RuntimeError:
             return False
+        
+    @staticmethod
+    def format_profile_data(profile: FalcoriaProfile) -> list[tuple[str, str]]:
+        """Prepare profile data as (field, value) tuples for display."""
+        rows = [
+            ("scanledger_base_url", profile.scanledger_base_url),
+            ("tasker_base_url", profile.tasker_base_url),
+            ("token", profile.token)
+        ]
+
+        if profile.projects:
+            projects = ", ".join([f"{p.name} ({p.project_id})" for p in profile.projects])
+        else:
+            projects = "-"
+        rows.append(("projects", projects))
+
+        if profile.current_project:
+            current = f"{profile.current_project.name} ({profile.current_project.project_id})"
+        else:
+            current = "-"
+        rows.append(("current_project", current))
+
+        return rows
+    
+    @staticmethod
+    def get_project_by_id(project_id: str) -> FalcoriaProject | None:
+        """Return project by ID from the active profile, or None if not found."""
+        active_profile_name = ProfileService.get_active_profile_name()
+        if not active_profile_name:
+            return None
+
+        profile = ProfileService.load_profile(active_profile_name)
+        for project in profile.projects:
+            if project.project_id == project_id:
+                return project
+
+        return None

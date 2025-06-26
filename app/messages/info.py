@@ -35,14 +35,15 @@ class Info:
         NO_NEW_IPS = "No new IPs imported for project '{project}'."
         DOWNLOADED = "Downloaded IPs report for project '{project}'."
         DELETED = "Deleted IP(s) for project '{project}'."
-        NO_IPS_FOUND = "No IPs found in project '{project}'."
+        NO_IPS_FOUND = "No IPs found in project '{project_name}' ({project_id})."
     
     class Worker:
         FETCHED_WORKER_IPS = "Fetched external IP addresses of active workers."
     
     class Scan:
-        TARGETS_SENT = "Scan initiated for project {project}."
-        STOP_SUCCESS = "Scan stopped successfully for project {project_id}."
-        STATUS_FETCHED = "Scan status for project {project_id} fetched successfully."
-        NO_TASKS = "No tasks found to stop for project '{project}'."
+        TARGETS_SENT = "Scan initiated for project: '{project_name}' ({project_id})."
+        STOP_SUCCESS = "Scan stopped successfully for project: '{project_name}' ({project_id})."
+        STATUS_FETCHED = "Scan status for project '{project_name}' ({project_id}) fetched successfully."
+        NO_TASKS = "No tasks found to stop for project '{project_name}' ({project_id})."
         REVOKED_COUNT = "Revoked {count} tasks."
+        PRINT_CONFIG = "Using scan configuration: {config}"

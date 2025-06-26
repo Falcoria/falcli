@@ -22,3 +22,12 @@ def load_lines_from_file(file_path: Path) -> list[str]:
         raise FileNotFoundError(f"File not found: {file_path}")
     with file_path.open("r") as f:
         return [line.strip() for line in f if line.strip()]
+
+
+def get_display_path(file_path):
+    file_path = Path(file_path).resolve()
+    try:
+        rel_path = file_path.relative_to(Path.cwd())
+        return str(rel_path)
+    except ValueError:
+        return str(file_path)
