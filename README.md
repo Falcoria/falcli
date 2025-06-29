@@ -4,6 +4,12 @@
 
 ---
 
+## Documentation
+
+Full documentation is available at: [https://falcoria.github.io/falcoria-docs/](https://falcoria.github.io/falcoria-docs/)
+
+---
+
 ## Installation
 
 ```bash
@@ -22,7 +28,7 @@ pip install -r requirements.txt
 You're now ready to run the CLI using:
 
 ```bash
-python falcli.py --help
+./falcli.py --help
 ```
 
 ---
@@ -47,7 +53,21 @@ This enables communication with the backend and task dispatch system.
 
 ---
 
-## How to Scan
+## Quick Start Example
+
+```bash
+./falcli.py project create test_project
+./falcli.py scan start --targets-file hosts.txt
+./falcli.py scan status
+./falcli.py project ips get
+./falcli.py workers ips
+```
+
+See detailed examples below.
+
+---
+
+## Typical Workflow
 
 ### 1. Create a Project
 
@@ -63,13 +83,14 @@ First project saved.
 ### 2. Start a Scan
 
 ```bash
-./falcli.py scan start --targets-file hosts.txt 
-[+] Scan initiated for project 26e73c7f-c1e3-4131-8ee5-99a01681af9f.
+./falcli.py scan start --targets-file hosts.txt
+[+] Scan initiated for project: 'test_project' (056e77ef-ed63-409a-82cd-a47693c2366a).
 
 Scan Settings
-  Import mode      : insert
-  Nmap open ports  : -n --max-retries 1 --min-rate 300 -Pn -p 1-65535
-  Nmap services    : -sV -Pn
+  Import mode        : insert
+  Nmap (open ports)  : -n --max-retries 1 --min-rate 300 -Pn -p 1-65535
+  Nmap (services)    : -sV -Pn
+  Scan config        : app/data/scan_configs/default.yaml
 
 Scan Summary
   Targets provided         : 6
@@ -98,10 +119,25 @@ IP               HOSTNAMES  WORKER        STARTED_AT (UTC)     ELAPSED
 165.22.231.248              e323a82d28d3  2025-06-17 13:57:46  0:00:11
 ```
 
-### 4. Get Results
+### 4. Get Scan Results
 
 ```bash
 ./falcli.py project ips get
+```
+
+### 5. Check Active Workers
+
+```bash
+./falcli.py workers ips
+[+] Fetched external IP addresses of active workers.
+
+HOSTNAME      IP               LAST_UPDATED         LAST_UPDATED_AGO
+d2b5c09fe876  134.209.200.222  2025-06-26 15:44:02  25 min ago
+c21da8b747db  146.190.27.214   2025-06-26 15:44:02  25 min ago
+e323a82d28d3  159.223.225.154  2025-06-26 15:44:02  25 min ago
+a5ef4e44ca7b  64.225.64.155    2025-06-26 15:44:02  25 min ago
+
+4 workers online.
 ```
 
 ---
@@ -112,11 +148,5 @@ IP               HOSTNAMES  WORKER        STARTED_AT (UTC)     ELAPSED
 |---------------------------|--------------------------------------------------|
 | [Import Mode: Insert](https://github.com/Falcoria/falcoria-use-cases/tree/main/import-mode-insert)  | Adds new scan data without affecting existing results. Ideal for incremental discovery. |
 | [Import Mode: Replace](https://github.com/Falcoria/falcoria-use-cases/tree/main/import-mode-replace) | Clears existing results and replaces them entirely with the new scan. Useful for fresh scans. |
-
----
-
-## Documentation
-
-Full documentation is available at: [https://falcoria.github.io/falcoria-docs/](https://falcoria.github.io/falcoria-docs/)
 
 ---

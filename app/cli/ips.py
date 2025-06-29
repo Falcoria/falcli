@@ -135,6 +135,6 @@ def get_ip(ip: str = typer.Argument(None), project_id: str = typer.Option(None),
     # List all IPs
     ips = IpsService.list_ips(project_id, skip=None, limit=None, has_ports=has_ports)
     if not ips:
-        Printer.plain(Info.IPs.NO_IPS_FOUND.format(project=project_id))
+        Printer.warning(Info.IPs.NO_IPS_FOUND.format(project_id=project_id, project_name=project.name))
         return
     Printer.grouped_ip_table(ips)
