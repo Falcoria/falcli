@@ -44,6 +44,6 @@ class Info:
         TARGETS_SENT = "Scan initiated for project: '{project_name}' ({project_id})."
         STOP_SUCCESS = "Scan stopped successfully for project: '{project_name}' ({project_id})."
         STATUS_FETCHED = "Scan status for project '{project_name}' ({project_id}) fetched successfully."
-        NO_TASKS = "No tasks found to stop for project '{project_name}' ({project_id})."
+        NO_TASKS = "No tasks found for project '{project_name}' ({project_id})."
         REVOKED_COUNT = "Revoked {count} tasks."
         PRINT_CONFIG = "Using scan configuration: {config}"

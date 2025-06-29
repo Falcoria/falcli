@@ -236,7 +236,6 @@ class ProjectTaskSummary(BaseModel):
     running_targets: List[RunningTarget]
 
 
-
 class RevokeResponse(BaseModel):
     status: str
     revoked: int = 0

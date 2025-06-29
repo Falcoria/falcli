@@ -1,7 +1,11 @@
 from pathlib import Path
 from typing import Optional, Annotated
-
 import typer
+from rich.console import Console
+from rich.live import Live
+from rich.text import Text
+from datetime import datetime, timedelta, timezone
+import time
 
 from app.utils.printer import Printer
 from app.messages.errors import Errors
@@ -14,9 +18,8 @@ from app.utils.io_utils import load_lines_from_file
 from app.config import config
 from app.core.scan.enums import ScanCommands
 
-
 scan_app = typer.Typer(no_args_is_help=True)
-
+console = Console()
 
 @scan_app.command(ScanCommands.START.value, help="Start a scan using a YAML config and optional target file or host list.")
 def start_scan_cmd(
@@ -70,41 +73,20 @@ def start_scan_cmd(
         Printer.error(Errors.Scan.NO_TARGETS_FOUND)
         raise typer.Exit(1)
 
-    if hosts:
-        scan_request.hosts = [h.strip() for h in hosts.split(",") if h.strip()]
-    elif targets_file:
-        try:
-            scan_request.hosts = load_lines_from_file(targets_file)
-        except FileNotFoundError:
-            Printer.error(Errors.Scan.TARGETS_FILE_NOT_FOUND.format(path=targets_file))
-            raise typer.Exit(1)
-    elif from_config:
-        if not scan_request.hosts:
-            Printer.error(Errors.Scan.NO_TARGETS_FOUND)
-            raise typer.Exit(1)
-    else:
-        Printer.error(Errors.Scan.NO_HOSTS_PROVIDED)
-        raise typer.Exit(1)
-
-    if not scan_request.hosts:
-        Printer.error(Errors.Scan.NO_TARGETS_FOUND)
-        raise typer.Exit(1)
-
     if mode:
         scan_request.mode = mode
-
-    project = None
-    project_name = None
 
     if not project_id:
         project = ProfileService.get_saved_project()
         if not project:
             Printer.error(Errors.Project.ID_REQUIRED)
             raise typer.Exit(1)
-        
         project_id = project.project_id
         project_name = project.name
-    
+    else:
+        project = ProfileService.get_project_by_id(project_id)
+        project_name = project.name if project else None
+
     try:
         response: ScanStartResponse = ScanService.start_scan(
             project_id, scan_request.model_dump(exclude_unset=True)
@@ -118,8 +100,6 @@ def start_scan_cmd(
     Printer.scan_summary_table(response.summary)
     print()
 
-
-
 @scan_app.command(ScanCommands.STOP.value, help="Stop an ongoing scan for the given project.")
 def stop_scan(
     project_id: Optional[str] = typer.Argument(
@@ -127,9 +107,6 @@ def stop_scan(
     )
 ):
     """Stop an ongoing scan for the given project."""
-    project = None
-    project_name = None
-
     if not project_id:
         project = ProfileService.get_saved_project()
         if not project:
@@ -139,8 +116,7 @@ def stop_scan(
         project_name = project.name
     else:
         project = ProfileService.get_project_by_id(project_id)
-        if project:
-            project_name = project.name
+        project_name = project.name if project else None
 
     try:
         result = ScanService.stop_scan(project_id)
@@ -149,30 +125,21 @@ def stop_scan(
         raise typer.Exit(1)
 
     if result.status == "stopped":
-        Printer.success(Info.Scan.STOP_SUCCESS.format(
-            project_id=project_id,
-            project_name=project_name or "-"
-        ))
+        Printer.success(Info.Scan.STOP_SUCCESS.format(project_id=project_id, project_name=project_name or "-"))
         Printer.plain(Info.Scan.REVOKED_COUNT.format(count=result.revoked))
     else:
-        Printer.warning(Info.Scan.NO_TASKS.format(
-            project_id=project_id,
-            project_name=project_name or "-"
-        ))
-
+        Printer.warning(Info.Scan.NO_TASKS.format(project_id=project_id, project_name=project_name or "-"))
     print()
-
 
 @scan_app.command(ScanCommands.STATUS.value, help="Check scan task status for the given project.")
 def scan_status_cmd(
     project_id: Optional[str] = typer.Option(
         None, help="UUID of the project to check scan status for (default: current project in profile)"
-    )
+    ),
+    interactive: bool = typer.Option(False, "-i", "--interactive", help="Continuously refresh scan status"),
+    refresh_time: int = typer.Option(5, help="Refresh interval in seconds (only for interactive mode)")
 ):
     """Check scan task status for the given project."""
-    project = None
-    project_name = None
-
     if not project_id:
         project = ProfileService.get_saved_project()
         if not project:
@@ -182,22 +149,9 @@ def scan_status_cmd(
         project_name = project.name
     else:
         project = ProfileService.get_project_by_id(project_id)
-        if project:
-            project_name = project.name
+        project_name = project.name if project else None
 
-    try:
-        status: ProjectTaskSummary = ScanService.get_scan_status(project_id)
-    except RuntimeError as e:
-        Printer.error(str(e))
-        raise typer.Exit(1)
-
-    Printer.success(Info.Scan.STATUS_FETCHED.format(
-        project_id=project_id,
-        project_name=project_name or "-"
-    ))
-    if status.active_or_queued == 0:
-        Printer.plain(Info.Scan.NO_TASKS.format(project_name=project_name, project_id=project_id))
+    if interactive:
+        ScanService.interactive_scan_status(console, project_id, project_name, refresh_time)
     else:
-        Printer.task_summary_table(status)
-    print()
-
+        ScanService.static_scan_status(project_id, project_name)
