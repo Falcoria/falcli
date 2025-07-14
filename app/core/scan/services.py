@@ -12,8 +12,8 @@ from app.utils.io_utils import load_yaml_file
 from app.utils.printer import Printer
 from app.messages.errors import Errors
 from app.messages.info import Info
-from app.core.scan.models import RunNmapRequest, ScanStartResponse, ProjectTaskSummary, RevokeResponse
-
+from app.core.scan.models import RunNmapRequest, ScanStartResponse, RevokeResponse
+from falcoria_common.schemas.nmap import NmapTaskSummary
 
 class ScanService:
     @staticmethod
@@ -39,10 +39,10 @@ class ScanService:
         raise RuntimeError(Errors.Scan.STOP_FAILED.format(project_id=project_id))
 
     @staticmethod
-    def get_scan_status(project_id: str) -> ProjectTaskSummary:
+    def get_scan_status(project_id: str) -> NmapTaskSummary:
         response = tasker.get_scan_status(project_id)
         if response.status_code == 200:
-            return ProjectTaskSummary(**response.json())
+            return NmapTaskSummary(**response.json())
         raise RuntimeError(Errors.Scan.GET_STATUS_FAILED.format(project=project_id))
 
     @staticmethod

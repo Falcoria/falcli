@@ -6,9 +6,11 @@ from rich import print as rprint
 from pydantic import BaseModel
 
 from app.core.ips.models import IP
-from app.core.scan.models import ScanStartSummary, ProjectTaskSummary, RunNmapRequest
+from app.core.scan.models import ScanStartSummary, RunNmapRequest
 from app.utils.io_utils import get_display_path
 from app.core.profile.models import FalcoriaProject
+
+from falcoria_common.schemas.nmap import NmapTaskSummary
 
 
 class Printer:
@@ -170,7 +172,7 @@ class Printer:
 
 
     @staticmethod
-    def task_summary_table(summary: ProjectTaskSummary):
+    def task_summary_table(summary: NmapTaskSummary):
         """Print project scan task status summary."""
         Printer.header("Scan Status Summary")
 

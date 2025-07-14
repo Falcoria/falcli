@@ -3,3 +3,4 @@ requests
 typer[all]
 click==8.1.7
 pyyaml
+git+https://github.com/Falcoria/falcoria-common.git@main

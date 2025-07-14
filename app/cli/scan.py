@@ -11,7 +11,7 @@ from app.utils.printer import Printer
 from app.messages.errors import Errors
 from app.messages.info import Info
 from app.core.scan.services import ScanService
-from app.core.scan.models import ScanStartResponse, ProjectTaskSummary
+from app.core.scan.models import ScanStartResponse
 from app.core.common.enums import ImportMode
 from app.core.profile.services import ProfileService
 from app.utils.io_utils import load_lines_from_file

@@ -14,7 +14,6 @@ open_ports_opts:
 service_opts:
   aggressive_scan: true
   default_scripts: true
-  os_detection: true
   traceroute: false
 timeout: 1800
 

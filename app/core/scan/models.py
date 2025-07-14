@@ -223,19 +223,6 @@ class RunNmapRequest(BaseModel):
         return validated_hosts
 
 
-class RunningTarget(BaseModel):
-    ip: str
-    hostnames: list[str]
-    worker: str
-    started_at: int
-
-
-class ProjectTaskSummary(BaseModel):
-    active_or_queued: int
-    running: int
-    running_targets: List[RunningTarget]
-
-
 class RevokeResponse(BaseModel):
     status: str
     revoked: int = 0
