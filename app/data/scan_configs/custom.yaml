@@ -1,0 +1,22 @@
+hosts:
+  - 192.168.0.1
+  - 192.168.0.2
+open_ports_opts:
+  skip_host_discovery: true
+  dns_resolution: false
+  transport_protocol: tcp
+  max_retries: 3
+  min_rate: 50
+  max_rate: 300
+  ports:
+    - "5432"
+    - "2222"
+    - "2223"
+service_opts:
+  aggressive_scan: true
+  default_scripts: true
+  traceroute: false
+timeout: 1800
+
+mode: insert                # https://falcoria.github.io/falcoria-docs/import-modes/
+include_services: true      # run -sV against discovered open ports?

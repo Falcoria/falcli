@@ -15,6 +15,8 @@ class ScanledgerConnector(BaseConnector):
         "ips_import": "projects/{project_id}/ips/import",
         "ips_download": "projects/{project_id}/ips/download",
         "ip_detail": "projects/{project_id}/ips/{ip_address}",
+        "ips_history": "projects/{project_id}/history",
+        "ip_history": "projects/{project_id}/ips/{ip_address}/history",
     }
 
     def __init__(self, scanledger_base_url: str, auth_token: str):
@@ -113,6 +115,17 @@ class ScanledgerConnector(BaseConnector):
             ip_address=ip
         )
         return self.make_request(endpoint, method="DELETE")
+    
+    def get_history(self, project_id: str) -> requests.Response:
+        endpoint = self.ROUTES["ips_history"].format(project_id=project_id)
+        return self.make_request(endpoint)
+    
+    def get_ip_history(self, project_id: str, ip: str) -> requests.Response:
+        endpoint = self.ROUTES["ip_history"].format(
+            project_id=project_id,
+            ip_address=ip
+        )
+        return self.make_request(endpoint)
 
 
 # Global connector instance

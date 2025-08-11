@@ -7,7 +7,6 @@ from typing import Dict
 from pydantic import BaseModel, Field, field_validator, PrivateAttr
 from pydantic.networks import IPvAnyAddress, IPvAnyNetwork
 
-
 from app.core.common.enums import ImportMode
 
 
@@ -19,12 +18,15 @@ class RefusedCounts(BaseModel):
     unresolvable: int = 0
     other: int = 0
 
+
 class ScanStartSummary(BaseModel):
     provided: int
     duplicates_removed: int
     resolved_ips: int
+    hostnames_collapsed_to_ip: int
     refused: RefusedCounts
     sent_to_scan: int
+
 
 class ScanStartResponse(BaseModel):
     summary: ScanStartSummary
@@ -185,6 +187,7 @@ class RunNmapRequest(BaseModel):
     timeout: int = Field(..., ge=1, le=60*60*24, description="Timeout in seconds for the scan")
     include_services: bool = Field(..., description="Include service detection in the scan")
     mode: ImportMode = Field(..., description="Import mode for the scan results")
+    track_history: bool = True
 
     @field_validator('hosts', mode='before')
     @classmethod

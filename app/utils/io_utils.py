@@ -1,4 +1,5 @@
 import yaml
+from enum import Enum
 from pathlib import Path
 
 def save_dict_to_yaml(data: dict, path: Path):
@@ -31,3 +32,9 @@ def get_display_path(file_path):
         return str(rel_path)
     except ValueError:
         return str(file_path)
+    
+
+def serialize_value(value):
+    if isinstance(value, Enum):
+        return value.name.lower()
+    return str(value) if value is not None else "-"

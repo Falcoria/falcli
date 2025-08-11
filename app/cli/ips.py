@@ -2,12 +2,15 @@ import typer
 from app.utils.printer import Printer
 from app.messages.info import Info
 from app.messages.errors import Errors
+from app.messages.warnings import Warnings
 from app.messages.confirmations import CONFIRMATIONS
 from app.core.ips.services import IpsService
 from app.core.common.enums import ImportMode, DownloadReportFormat
 from app.utils.context import get_current_project_id
 from app.core.project.services import ProjectService
 from app.core.profile.services import ProfileService
+
+from falcoria_common.schemas.history import IPPortHistoryOut
 
 
 ips_app = typer.Typer(no_args_is_help=True)
@@ -138,3 +141,29 @@ def get_ip(ip: str = typer.Argument(None), project_id: str = typer.Option(None),
         Printer.warning(Info.IPs.NO_IPS_FOUND.format(project_id=project_id, project_name=project.name))
         return
     Printer.grouped_ip_table(ips)
+
+
+@ips_app.command("history", help="Show port change history for all IPs or a specific IP")
+def ip_history(
+    ip: str = typer.Argument(None),
+    project_id: str = typer.Option(None)
+):
+    project_id = get_current_project_id(project_id)
+    project = ProfileService.get_project_by_id(project_id)
+    Printer.print_active_project(project)
+    print()
+
+    if ip:
+        history = IpsService.get_ip_history(project_id, ip)
+        if not history:
+            Printer.warning(Warnings.History.NO_HISTORY_IP.format(project_id=project_id, ip=ip))
+            return
+    else:
+        history = IpsService.get_history(project_id)
+        if not history:
+            Printer.warning(Warnings.History.NO_HISTORY_IPS.format(project_id=project_id))
+            return
+
+    history_entries = [IPPortHistoryOut.model_validate(entry) for entry in history]
+    Printer.print_ip_port_history(history_entries)
+    print()

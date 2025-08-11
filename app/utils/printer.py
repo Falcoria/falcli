@@ -1,3 +1,4 @@
+from tabulate import tabulate
 from typing import List, Type, Union
 
 from datetime import datetime, timezone, timedelta
@@ -6,12 +7,12 @@ from rich import print as rprint
 from pydantic import BaseModel
 
 from app.core.ips.models import IP
-from app.core.scan.models import ScanStartSummary, RunNmapRequest
-from app.utils.io_utils import get_display_path
+from app.core.scan.schemas import ScanStartSummary, RunNmapRequest
+from app.utils.io_utils import get_display_path, serialize_value
 from app.core.profile.models import FalcoriaProject
 
 from falcoria_common.schemas.nmap import NmapTaskSummary
-
+from falcoria_common.schemas.history import IPPortHistoryOut
 
 class Printer:
     @staticmethod
@@ -121,7 +122,13 @@ class Printer:
                         port.protocol.value,
                         port.state.value,
                         port.service or "-",
-                        port.banner or "-"
+                        " ".join(
+                            part for part in [
+                                port.product,
+                                port.version,
+                                port.extrainfo
+                            ] if part
+                        ) or "-"
                     )
                     for port in ip.ports
                 ]
@@ -143,11 +150,12 @@ class Printer:
         total_rejected = ref.forbidden + ref.private_ip + ref.unresolvable + ref.other
 
         data = {
-            "Targets provided"       : summary.provided,
-            "Duplicates removed"     : summary.duplicates_removed,
-            "Skipped (already known)": total_skipped,
-            "Rejected"               : total_rejected,
-            "Accepted and sent"      : summary.sent_to_scan,
+            "Targets provided"               : summary.provided,
+            "Duplicates removed"             : summary.duplicates_removed,
+            "Hostnames collapsed to IP"      : summary.hostnames_collapsed_to_ip,
+            "Skipped (already known)"        : total_skipped,
+            "Rejected"                       : total_rejected,
+            "Accepted and sent"              : summary.sent_to_scan,
         }
 
         Printer.key_value_table(data)
@@ -233,3 +241,35 @@ class Printer:
     def print_active_project(project: FalcoriaProject):
         #Printer.plain(f"[Active Project] {project.name} ({project.project_id})")
         Printer.plain(f"[Active Project]: '{project.name}' ({project.project_id})")
+
+    @staticmethod
+    def print_ip_port_history(entries: list[IPPortHistoryOut]):
+        if not entries:
+            print("(No history)")
+            return
+
+        base_fields = list(IPPortHistoryOut.model_fields.keys())
+        base_fields.remove("old_value")
+        base_fields.remove("new_value")
+        base_fields.remove("created_at")
+
+        headers = [f.upper() for f in base_fields] + ["OLD_VALUE", "", "NEW_VALUE", "CREATED_AT"]
+        rows = []
+
+        old_width = max(len(str(e.old_value) if e.old_value else '-') for e in entries)
+        new_width = max(len(str(e.new_value) if e.new_value else '-') for e in entries)
+
+        for entry in entries:
+            row = [serialize_value(getattr(entry, field)) for field in base_fields]
+
+            old = str(entry.old_value) if entry.old_value else "-"
+            new = str(entry.new_value) if entry.new_value else "-"
+            arrow = "→"
+            created_at = datetime.fromtimestamp(entry.created_at, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+
+            row += [old.ljust(old_width), arrow, new.ljust(new_width), created_at]
+            rows.append(row)
+
+        Printer.column_table(headers, rows)
+
+

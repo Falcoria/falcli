@@ -62,3 +62,17 @@ class IpsService:
         if response.status_code == 200:
             return IP.model_validate(response.json())
         return None
+
+    @staticmethod
+    def get_history(project_id: str) -> list[dict]:
+        response = scanledger.get_history(project_id)
+        if response.status_code == 200:
+            return response.json()
+        return []
+
+    @staticmethod
+    def get_ip_history(project_id: str, ip: str) -> list[dict]:
+        response = scanledger.get_ip_history(project_id, ip)
+        if response.status_code == 200:
+            return response.json()
+        return []

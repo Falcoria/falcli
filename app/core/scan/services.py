@@ -12,7 +12,7 @@ from app.utils.io_utils import load_yaml_file
 from app.utils.printer import Printer
 from app.messages.errors import Errors
 from app.messages.info import Info
-from app.core.scan.models import RunNmapRequest, ScanStartResponse, RevokeResponse
+from app.core.scan.schemas import RunNmapRequest, ScanStartResponse, RevokeResponse
 from falcoria_common.schemas.nmap import NmapTaskSummary
 
 class ScanService:
