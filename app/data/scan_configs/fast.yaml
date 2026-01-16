@@ -3,7 +3,7 @@ open_ports_opts:
   dns_resolution: false      # -n
   transport_protocol: tcp   # tcp/udp
   max_retries: 1            # --max-retries
-  min_rate: 8000            # --min-rate
+  min_rate: 15000           # --min-rate
   ports:
     - "1-65535"
 
