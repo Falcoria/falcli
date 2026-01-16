@@ -187,6 +187,7 @@ class RunNmapRequest(BaseModel):
     timeout: int = Field(..., ge=1, le=60*60*24, description="Timeout in seconds for the scan")
     include_services: bool = Field(..., description="Include service detection in the scan")
     mode: ImportMode = Field(..., description="Import mode for the scan results")
+    single_resolve: bool = Field(default=False, description="Resolve hostnames only in one IP")
     track_history: bool = True
 
     @field_validator('hosts', mode='before')
