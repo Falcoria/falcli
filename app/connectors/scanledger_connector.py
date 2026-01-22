@@ -63,14 +63,14 @@ class ScanledgerConnector(BaseConnector):
         endpoint = self.ROUTES["ips_list"].format(project_id=project_id)
         return self.make_request(endpoint, method="DELETE")
 
-    def import_ips(self, project_id: str, file_path: str, mode: str = ImportMode.INSERT.value) -> requests.Response:
+    def import_ips(self, project_id: str, file_path: str, mode: str = ImportMode.INSERT.value, history: bool = True) -> requests.Response:
         endpoint = self.ROUTES["ips_import"].format(project_id=project_id)
         with open(file_path, "rb") as f:
             files = {"file": f}
             return self.make_request(
                 endpoint,
                 method="POST",
-                query_params={"mode": mode},
+                query_params={"mode": mode, "track_history": history},
                 files=files
             )
 

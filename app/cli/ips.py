@@ -46,10 +46,10 @@ def create_ips(ip: list[str] = typer.Option(...), project_id: str = typer.Option
 
 
 @ips_app.command("import", help="Import IPs from a file into the current project")
-def import_ips(file: str = typer.Option(..., "-f", "--file"), project_id: str = typer.Option(None), mode: ImportMode = typer.Option(ImportMode.INSERT)):
+def import_ips(file: str = typer.Option(..., "-f", "--file"), project_id: str = typer.Option(None), mode: ImportMode = typer.Option(ImportMode.INSERT), history: bool = typer.Option(True, help="Track port change history during import")):
     project_id = get_current_project_id(project_id)
     project = ProfileService.get_project_by_id(project_id)
-    result = IpsService.import_ips(project_id, file, mode)
+    result = IpsService.import_ips(project_id, file, mode, history)
     Printer.print_active_project(project)
     if result:
         Printer.plain(Info.IPs.IMPORTED.format(project=project_id, result=f"{len(result)} IP{'s' if len(result) != 1 else ''}"))

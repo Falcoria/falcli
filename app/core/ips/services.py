@@ -21,8 +21,8 @@ class IpsService:
         return None
 
     @staticmethod
-    def import_ips(project_id: str, file_path: str, mode: ImportMode) -> list[str] | None:
-        response = scanledger.import_ips(project_id, file_path, mode=mode.value)
+    def import_ips(project_id: str, file_path: str, mode: ImportMode, history: bool) -> list[str] | None:
+        response = scanledger.import_ips(project_id, file_path, mode=mode.value, history=history)
         if response.status_code == 200:
             return response.json()
         return None
