@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.94SVN scan initiated Wed Jan 21 17:31:24 2026 as: nmap -p 80,443,8080,8443 -&#45;open -Pn -n -oX 2_3_http.xml 164.90.197.207 164.92.215.43 -->
+<nmaprun scanner="nmap" args="nmap -p 80,443,8080,8443 -&#45;open -Pn -n -oX 2_3_http.xml 164.90.197.207 164.92.215.43" start="1769005884" startstr="Wed Jan 21 17:31:24 2026" version="7.94SVN" xmloutputversion="1.05">
+<scaninfo type="connect" protocol="tcp" numservices="4" services="80,443,8080,8443"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<host starttime="1769005884" endtime="1769005885"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="164.90.197.207" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="filtered" count="3">
+<extrareasons reason="no-response" count="3" proto="tcp" ports="443,8080,8443"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="74722" rttvar="74722" to="373610"/>
+</host>
+<host starttime="1769005884" endtime="1769005886"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="164.92.215.43" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="filtered" count="3">
+<extrareasons reason="no-response" count="3" proto="tcp" ports="443,8080,8443"/>
+</extraports>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+</ports>
+<times srtt="86651" rttvar="86651" to="433255"/>
+</host>
+<runstats><finished time="1769005886" timestr="Wed Jan 21 17:31:26 2026" summary="Nmap done at Wed Jan 21 17:31:26 2026; 2 IP addresses (2 hosts up) scanned in 1.88 seconds" elapsed="1.88" exit="success"/><hosts up="2" down="0" total="2"/>
+</runstats>
+</nmaprun>

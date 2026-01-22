@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE nmaprun>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 7.94SVN scan initiated Wed Jan 21 17:40:19 2026 as: nmap -p1-65535 -Pn -n -&#45;open -oX rescan.xml 64.227.71.252 164.90.197.207 164.92.215.43 64.227.69.255 -->
+<nmaprun scanner="nmap" args="nmap -p1-65535 -Pn -n -&#45;open -oX rescan.xml 64.227.71.252 164.90.197.207 164.92.215.43 64.227.69.255" start="1769006419" startstr="Wed Jan 21 17:40:19 2026" version="7.94SVN" xmloutputversion="1.05">
+<scaninfo type="connect" protocol="tcp" numservices="65535" services="1-65535"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<taskprogress task="Connect Scan" time="1769006667" percent="86.29" remaining="40" etc="1769006706"/>
+<taskprogress task="Connect Scan" time="1769006704" percent="98.30" remaining="5" etc="1769006709"/>
+<host starttime="1769006419" endtime="1769006713"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="64.227.71.252" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="filtered" count="65527">
+<extrareasons reason="no-response" count="65527" proto="tcp" ports="1-21,23-2221,2223-2374,2377-5431,5433-6378,6380-50499,50501-50998,51000-65535"/>
+</extraports>
+<extraports state="closed" count="2">
+<extrareasons reason="conn-refused" count="2" proto="tcp" ports="2375-2376"/>
+</extraports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="2222"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="EtherNetIP-1" method="table" conf="3"/></port>
+<port protocol="tcp" portid="5432"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="postgresql" method="table" conf="3"/></port>
+<port protocol="tcp" portid="6379"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="redis" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50500"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="50999"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+</ports>
+<times srtt="79243" rttvar="3507" to="100000"/>
+</host>
+<host starttime="1769006419" endtime="1769006687"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="164.90.197.207" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="filtered" count="65526">
+<extrareasons reason="no-response" count="65526" proto="tcp" ports="1-21,23-79,81-2120,2122-2374,2377-27016,27018-50442,50444-50776,50778-52999,53001-65535"/>
+</extraports>
+<extraports state="closed" count="2">
+<extrareasons reason="conn-refused" count="2" proto="tcp" ports="2375-2376"/>
+</extraports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="http" method="table" conf="3"/></port>
+<port protocol="tcp" portid="2121"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="ccproxy-ftp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="27017"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="mongod" method="table" conf="3"/></port>
+<port protocol="tcp" portid="50443"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="50777"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="53000"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+</ports>
+<times srtt="75359" rttvar="5267" to="100000"/>
+</host>
+<host starttime="1769006419" endtime="1769006673"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="164.92.215.43" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="filtered" count="65524">
+<extrareasons reason="no-response" count="65524" proto="tcp" ports="1-21,23-2374,2377-3305,3307-10079,10081-40997,41000-43209,43211-44887,44889-49221,49223-58776,58778-65535"/>
+</extraports>
+<extraports state="closed" count="2">
+<extrareasons reason="conn-refused" count="2" proto="tcp" ports="2375-2376"/>
+</extraports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="3306"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="mysql" method="table" conf="3"/></port>
+<port protocol="tcp" portid="10080"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="amanda" method="table" conf="3"/></port>
+<port protocol="tcp" portid="40998"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="40999"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="43210"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="shaperai" method="table" conf="3"/></port>
+<port protocol="tcp" portid="44888"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="49222"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="58777"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+</ports>
+<times srtt="69718" rttvar="2805" to="100000"/>
+</host>
+<host starttime="1769006419" endtime="1769006669"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="64.227.69.255" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><extraports state="filtered" count="65527">
+<extrareasons reason="no-response" count="65527" proto="tcp" ports="1-21,23-2374,2377-33059,33061-43889,43891-44221,44223-44499,44501-45554,45556-65535"/>
+</extraports>
+<extraports state="closed" count="2">
+<extrareasons reason="conn-refused" count="2" proto="tcp" ports="2375-2376"/>
+</extraports>
+<port protocol="tcp" portid="22"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="33060"><state state="open" reason="syn-ack" reason_ttl="0"/><service name="mysqlx" method="table" conf="3"/></port>
+<port protocol="tcp" portid="43890"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="44222"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="44500"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+<port protocol="tcp" portid="45555"><state state="open" reason="syn-ack" reason_ttl="0"/></port>
+</ports>
+<times srtt="75782" rttvar="3279" to="100000"/>
+</host>
+<runstats><finished time="1769006713" timestr="Wed Jan 21 17:45:13 2026" summary="Nmap done at Wed Jan 21 17:45:13 2026; 4 IP addresses (4 hosts up) scanned in 293.55 seconds" elapsed="293.55" exit="success"/><hosts up="4" down="0" total="4"/>
+</runstats>
+</nmaprun>
