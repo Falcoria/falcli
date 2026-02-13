@@ -1,152 +1,76 @@
-# Falcoria CLI
+# falcli
 
-**Falcoria CLI** is a unified command-line interface for managing the distributed scanning system — Falcoria. It streamlines every stage of the scanning workflow: from project creation to task dispatch and result retrieval. Built to simplify complex infrastructure scans, `falcli` brings full control to your terminal.
-
----
-
-## Documentation
-
-Full documentation is available at: [https://falcoria.github.io/falcoria-docs/](https://falcoria.github.io/falcoria-docs/)
-
----
+falcli is the command-line interface for the [Falcoria](https://github.com/Falcoria/falcoria) distributed scanning system. It covers the full workflow: creating projects, submitting scans, importing reports, viewing results, checking history, and exporting data.
 
 ## Installation
 
 ```bash
-# 1. Clone the repository
 git clone https://github.com/Falcoria/falcli.git
 cd falcli
-
-# 2. Create and activate a virtual environment
 python3 -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# 3. Install required dependencies
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-You're now ready to run the CLI using:
-
-```bash
-./falcli.py --help
-```
-
----
-
 ## Configuration
 
-Before using the CLI, set up your connection to Falcoria services by editing:
-
-```bash
-./app/data/profiles/default.yaml
-```
-
-Fill in the following fields:
+Edit the profile at `app/data/profiles/default.yaml`:
 
 ```yaml
-backend_base_url: <scanledger_url>
-tasker_base_url: <tasker_url>      # Optional if you don't use scan functionality
-token: <your_access_token>
+backend_base_url: https://<scanledger_host>
+tasker_base_url: https://<tasker_host>       # not needed for data aggregation only
+token: <YOUR_ADMIN_TOKEN>
 ```
 
-This enables communication with the backend and task dispatch system.
+For a single-node setup (everything on localhost), both URLs point to `localhost` with ports `443` (ScanLedger) and `8443` (Tasker).
 
----
+falcli remembers the active project — no need to specify it on every command. Switch projects with `falcli profile set-active-project`. Every command supports `--help`.
 
-## Quick Start Example
+## Typical workflow
 
 ```bash
-./falcli.py project create test_project
-./falcli.py scan start --targets-file hosts.txt
-./falcli.py scan status
-./falcli.py project ips get
-./falcli.py workers ips
+# Create a project
+falcli project create --name pentest_q4
+
+# Start a scan
+falcli scan start --config scan_configs/http-only.yaml --targets-file hosts.txt
+
+# Check status
+falcli project scan status
+
+# View results
+falcli project ips get
+
+# View what changed since last scan
+falcli project ips history
+
+# Export current state as Nmap XML
+falcli project ips download
 ```
 
-See detailed examples below.
+## Importing external reports
 
----
-
-## Typical Workflow
-
-### 1. Create a Project
+If you run scans outside of Falcoria (Nmap, Masscan, etc.), import the results directly:
 
 ```bash
-./falcli.py project create pentest_project
-[+] Project 'pentest_project' created successfully (26e73c7f-c1e3-4131-8ee5-99a01681af9f).
-  project_name  : pentest_project
-  id            : 26e73c7f-c1e3-4131-8ee5-99a01681af9f
-  users         : admin
-First project saved.
+falcli project ips import -f nmap_output.xml --mode append
 ```
 
-### 2. Start a Scan
+The import mode controls how incoming data merges with existing records. See [Import Modes](https://falcoria.github.io/falcoria-docs/concepts/import-modes/) for details.
 
-```bash
-./falcli.py scan start --targets-file hosts.txt
-[+] Scan initiated for project: 'test_project' (056e77ef-ed63-409a-82cd-a47693c2366a).
+## Scan configs
 
-Scan Settings
-  Import mode        : insert
-  Nmap (open ports)  : -n --max-retries 1 --min-rate 300 -Pn -p 1-65535
-  Nmap (services)    : -sV -Pn
-  Scan config        : app/data/scan_configs/default.yaml
+Scan configs are YAML files in `app/data/scan_configs/`. They define port ranges, protocols, rate limits, and service detection options. falcli ships with built-in profiles for common scan types.
 
-Scan Summary
-  Targets provided         : 6
-  Duplicates removed       : 1
-  Skipped (already known)  : 0
-  Rejected                 : 0
-  Accepted and sent        : 5
-```
+See [Scan Configs](https://falcoria.github.io/falcoria-docs/concepts/scan-configs/) for the full reference.
 
-### 3. Check Scan Status
+## Documentation
 
-```bash
-./falcli.py scan status
-[+] Scan status for project 26e73c7f-c1e3-4131-8ee5-99a01681af9f fetched successfully.
+Full documentation: [https://falcoria.github.io/falcoria-docs/](https://falcoria.github.io/falcoria-docs/)
 
-Scan Status Summary
-  Tasks total    : 5
-  Tasks running  : 4
-  Tasks queued   : 1
+- [Getting Started](https://falcoria.github.io/falcoria-docs/getting-started/) — setup and first scan
+- [Workflows](https://falcoria.github.io/falcoria-docs/workflows/) — common usage patterns
 
-Running Targets:
-IP               HOSTNAMES  WORKER        STARTED_AT (UTC)     ELAPSED
-142.93.156.194              a5ef4e44ca7b  2025-06-17 13:57:46  0:00:11
-147.182.157.118             d2b5c09fe876  2025-06-17 13:57:46  0:00:11
-143.110.223.7               c21da8b747db  2025-06-17 13:57:46  0:00:11
-165.22.231.248              e323a82d28d3  2025-06-17 13:57:46  0:00:11
-```
+## License
 
-### 4. Get Scan Results
-
-```bash
-./falcli.py project ips get
-```
-
-### 5. Check Active Workers
-
-```bash
-./falcli.py workers ips
-[+] Fetched external IP addresses of active workers.
-
-HOSTNAME      IP               LAST_UPDATED         LAST_UPDATED_AGO
-d2b5c09fe876  134.209.200.222  2025-06-26 15:44:02  25 min ago
-c21da8b747db  146.190.27.214   2025-06-26 15:44:02  25 min ago
-e323a82d28d3  159.223.225.154  2025-06-26 15:44:02  25 min ago
-a5ef4e44ca7b  64.225.64.155    2025-06-26 15:44:02  25 min ago
-
-4 workers online.
-```
-
----
-
-## Use Cases
-
-| Use Case                  | Description                                      |
-|---------------------------|--------------------------------------------------|
-| [Import Mode: Insert](https://github.com/Falcoria/falcoria-use-cases/tree/main/import-mode-insert)  | Adds new scan data without affecting existing results. Ideal for incremental discovery. |
-| [Import Mode: Replace](https://github.com/Falcoria/falcoria-use-cases/tree/main/import-mode-replace) | Clears existing results and replaces them entirely with the new scan. Useful for fresh scans. |
-
----
+MIT
